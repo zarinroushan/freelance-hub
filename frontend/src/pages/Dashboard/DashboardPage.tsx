@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { SkeletonGrid, Skeleton } from '../../components/ui/Skeleton';
 import { Briefcase, DollarSign, TrendingUp, Star, Plus, FileText, MessageSquare } from 'lucide-react';
+import { apiFetch } from '../../services/api';
 
 export function DashboardPage() {
   const { user } = useAuth();
@@ -19,11 +20,7 @@ export function DashboardPage() {
       try {
         // Fetch stats - handle missing endpoint gracefully
         try {
-          const statsResponse = await fetch('/api/users/me/stats', {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
-            },
-          });
+          const statsResponse = await apiFetch('/users/me/stats');
           if (statsResponse.ok) {
             const statsData = await statsResponse.json();
             setStats(statsData);

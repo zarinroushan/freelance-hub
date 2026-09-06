@@ -3,8 +3,7 @@ import { useAuth } from '../../services/context/AuthContext';
 import api from '../../services/api';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { User, Mail, MapPin, Briefcase, Star, Edit2, Save } from 'lucide-react';
+import { User, Briefcase, Edit2, Save } from 'lucide-react';
 
 interface Profile {
   id: number;

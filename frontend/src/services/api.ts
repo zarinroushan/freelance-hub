@@ -1,9 +1,28 @@
 import axios from 'axios';
 
-const API_URL = '/api';
+const configuredApiUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, '');
+export const API_BASE_URL = configuredApiUrl ? `${configuredApiUrl}/api` : '/api';
+
+export function apiFetch(path: string, options: RequestInit = {}) {
+  const headers = new Headers(options.headers);
+  const token = localStorage.getItem('unigigs_token');
+
+  if (options.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  return fetch(`${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`, {
+    ...options,
+    headers,
+  });
+}
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

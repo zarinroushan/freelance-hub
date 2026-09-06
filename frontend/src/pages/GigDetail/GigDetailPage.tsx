@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { ArrowLeft, Clock, User, CheckCircle } from 'lucide-react';
+import { apiFetch } from '../../services/api';
 
 export function GigDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [gig, setGig] = useState<Gig | null>(null);
   const [loading, setLoading] = useState(true);
   const [showApplyModal, setShowApplyModal] = useState(false);
@@ -261,11 +261,10 @@ function ApplyModal({ gigId, onClose }: { gigId: number; onClose: () => void }) 
     setLoading(true);
 
     try {
-      const response = await fetch('/api/applications', {
+      const response = await apiFetch('/applications', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
         },
         body: JSON.stringify({
           gig_id: gigId,

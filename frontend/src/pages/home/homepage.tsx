@@ -176,7 +176,7 @@ export function HomePage() {
           WHY UNIGIGS
       ========================== */}
 
-      <section className="py-16 md:py-20 bg-[var(--color-background)]">
+      <section id="about" className="py-16 md:py-20 bg-[var(--color-background)]">
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -377,7 +377,7 @@ export function HomePage() {
           HOW IT WORKS
       ========================== */}
 
-      <section className="py-16 md:py-20 bg-[var(--color-background)]">
+      <section id="how-it-works" className="py-16 md:py-20 bg-[var(--color-background)]">
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
