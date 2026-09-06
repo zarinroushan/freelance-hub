@@ -1,89 +1,191 @@
+/* ===================================
+   UNIGIGS DESIGN TOKENS
+   Professional Student Freelance Platform
+   =================================== */
+
 :root {
-  /* Light Mode Colors - Cherry Blossom Theme */
-  --color-primary: #d4a5a5;
-  --color-primary-hover: #c99494;
-  --color-secondary: #8b5a6b;
-  --color-background: #fef9f5;
-  --color-surface: #ffffff;
-  --color-surface-alt: #fff5f7;
-  --color-text: #1a202c;
-  --color-text-muted: #718096;
-  --color-border: #e2e8f0;
-  --color-success: #68d391;
-  --color-warning: #f6ad55;
-  --color-error: #fc8181;
+  /* ───────────────────────────────────
+     COLORS — LIGHT MODE
+     ─────────────────────────────────── */
   
-  /* Spacing */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
+  /* Brand Colors */
+  --color-primary: #0D9488;        /* Turquoise/Teal */
+  --color-primary-hover: #0F766E;  /* Darker teal */
+  --color-primary-light: #14B8A6;  /* Lighter teal */
   
-  /* Border Radius */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-full: 9999px;
+  --color-secondary: #F97316;      /* Coral/Orange */
+  --color-secondary-hover: #EA580C; /* Darker coral */
   
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --color-accent: #F59E0B;         /* Yellow/Amber */
+  --color-accent-light: #FBBF24;   /* Light yellow */
+  
+  /* Neutrals */
+  --color-bg: #FAFAF9;             /* Warm off-white background */
+  --color-surface: #FFFFFF;        /* White cards/surfaces */
+  --color-surface-elevated: #FFFFFF; /* Elevated surfaces */
   
   /* Typography */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
+  --color-text: #171717;           /* Near-black primary text */
+  --color-text-secondary: #525252; /* Secondary text */
+  --color-text-muted: #A3A3A3;     /* Muted/metadata text */
+  --color-text-inverse: #FFFFFF;   /* Text on dark backgrounds */
+  
+  /* Borders & Dividers */
+  --color-border: #E5E5E5;         /* Light borders */
+  --color-border-strong: #D4D4D4;  /* Stronger borders */
+  
+  /* Status Colors */
+  --color-success: #10B981;        /* Green */
+  --color-success-bg: #D1FAE5;
+  --color-error: #EF4444;          /* Red */
+  --color-error-bg: #FEE2E2;
+  --color-warning: #F59E0B;        /* Amber */
+  --color-warning-bg: #FEF3C7;
+  --color-info: #3B82F6;           /* Blue */
+  --color-info-bg: #DBEAFE;
+  
+  /* Shadows — Light Mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  
+  /* ───────────────────────────────────
+     SPACING SYSTEM
+     Based on 4px grid
+     ─────────────────────────────────── */
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+  
+  /* ───────────────────────────────────
+     TYPOGRAPHY
+     ─────────────────────────────────── */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  /* Font Sizes */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+  --text-6xl: 3.75rem;    /* 60px */
+  --text-7xl: 4.5rem;     /* 72px */
+  
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+  
+  /* Letter Spacing */
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  
+  /* ───────────────────────────────────
+     SIZING & LAYOUT
+     ─────────────────────────────────── */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+  
+  --navbar-height: 72px;
+  
+  /* ───────────────────────────────────
+     BORDER RADIUS
+     ─────────────────────────────────── */
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius: 0.5rem;        /* 8px */
+  --radius-md: 0.75rem;    /* 12px */
+  --radius-lg: 1rem;       /* 16px */
+  --radius-xl: 1.5rem;     /* 24px */
+  --radius-2xl: 2rem;      /* 32px */
+  --radius-full: 9999px;
+  
+  /* ───────────────────────────────────
+     TRANSITIONS
+     ─────────────────────────────────── */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-theme: 300ms ease;
 }
 
-.dark {
-  /* Dark Mode Colors */
-  --color-primary: #c99494;
-  --color-primary-hover: #d4a5a5;
-  --color-secondary: #a87082;
-  --color-background: #1a1a2e;
-  --color-surface: #16213e;
-  --color-surface-alt: #1f2947;
-  --color-text: #f7fafc;
-  --color-text-muted: #a0aec0;
-  --color-border: #2d3748;
-  --color-success: #48bb78;
-  --color-warning: #ed8936;
-  --color-error: #f56565;
+/* ───────────────────────────────────
+   DARK MODE
+   ─────────────────────────────────── */
+[data-theme='dark'] {
+  /* Brand Colors (slightly adjusted for dark mode) */
+  --color-primary: #14B8A6;        /* Brighter teal */
+  --color-primary-hover: #2DD4BF;  /* Lighter on hover */
+  --color-primary-light: #0D9488;
+  
+  --color-secondary: #FB923C;      /* Softer coral */
+  --color-secondary-hover: #F97316;
+  
+  --color-accent: #FBBF24;
+  --color-accent-light: #FCD34D;
+  
+  /* Neutrals */
+  --color-bg: #0D0D12;             /* Deep charcoal */
+  --color-surface: #15151D;        /* Slightly lighter */
+  --color-surface-elevated: #1C1C25;
+  
+  /* Typography */
+  --color-text: #F5F3F7;           /* Off-white */
+  --color-text-secondary: #D4D1DB;
+  --color-text-muted: #A4A1AD;
+  --color-text-inverse: #171717;
+  
+  /* Borders */
+  --color-border: #2A2A35;
+  --color-border-strong: #3F3F4E;
+  
+  /* Shadows — Dark Mode (subtle glow) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
 }
 
+/* ───────────────────────────────────
+   UTILITY CLASSES
+   ─────────────────────────────────── */
+   
+/* Smooth theme transition */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: var(--font-family);
-  background-color: var(--color-background);
-  color: var(--color-text);
-  line-height: 1.6;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-a {
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-button {
-  cursor: pointer;
-  font-family: var(--font-family);
+  transition: background-color var(--transition-theme),
+              border-color var(--transition-theme),
+              color var(--transition-theme),
+              box-shadow var(--transition-theme);
 }

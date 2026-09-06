@@ -17,6 +17,7 @@ export interface Profile {
   completed_gigs_count: number;
   average_rating: number;
   created_at: string;
+  total_earnings?: number;
 }
 
 export interface Gig {
