@@ -518,6 +518,3 @@ A feature is considered complete when:
 ## License
 
 This project is currently developed as an academic/student project.
-
-```
-```
