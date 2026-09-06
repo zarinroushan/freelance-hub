@@ -80,9 +80,6 @@ export function LoginPage() {
                 >
                   {showPassword ? 'Hide' : 'Show'} password
                 </button>
-                <Link to="/forgot-password" className="text-sm text-[var(--color-primary)] hover:underline">
-                  Forgot password?
-                </Link>
               </div>
             </div>
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/context/AuthContext';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
+import { apiFetch } from '../../services/api';
 
 
 interface Category {
@@ -30,7 +31,7 @@ export function PostGigPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/gigs/categories');
+        const response = await apiFetch('/gigs/categories');
         if (response.ok) {
           const data = await response.json();
           setCategories(data);
@@ -55,11 +56,10 @@ export function PostGigPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/gigs', {
+      const response = await apiFetch('/gigs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
         },
         body: JSON.stringify({
           title: formData.title,

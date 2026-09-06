@@ -5,6 +5,7 @@ import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { SkeletonGrid } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/StateComponents';
+import { apiFetch } from '../../services/api';
 import { CheckCircle, Clock, XCircle, FileText } from 'lucide-react';
 
 interface Application {
@@ -30,11 +31,7 @@ export function ApplicationsPage() {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const response = await fetch('/api/applications', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('unigigs_token')}`,
-          },
-        });
+        const response = await apiFetch('/applications');
 
         if (response.ok) {
           const data = await response.json();

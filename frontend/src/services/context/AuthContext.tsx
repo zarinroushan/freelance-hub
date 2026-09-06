@@ -8,6 +8,7 @@ import {
 } from 'react';
 
 import type { User } from '../../types';
+import { apiFetch } from '../api';
 
 interface AuthContextType {
   user: User | null;
@@ -32,9 +33,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USER_STORAGE_KEY = 'unigigs_user';
 const TOKEN_STORAGE_KEY = 'unigigs_token';
-
-// Change this if your backend uses a different port or route
-const API_URL = `${import.meta.env.VITE_API_URL}/api/auth`;
 
 export function AuthProvider({
   children,
@@ -75,7 +73,7 @@ export function AuthProvider({
       throw new Error('Email and password are required.');
     }
 
-    const response = await fetch(`${API_URL}/register`, {
+    const response = await apiFetch('/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -115,7 +113,7 @@ export function AuthProvider({
   ): Promise<void> => {
     const normalizedEmail = email.trim().toLowerCase();
 
-    const response = await fetch(`${API_URL}/login`, {
+    const response = await apiFetch('/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
