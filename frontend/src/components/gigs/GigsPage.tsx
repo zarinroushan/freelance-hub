@@ -70,7 +70,7 @@ export function GigsPage() {
               />
             </div>
           </div>
-          <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
+          <Button variant="secondary" onClick={() => setShowFilters(!showFilters)}>
             <SlidersHorizontal className="w-4 h-4 mr-2" />
             Filters
           </Button>
@@ -154,7 +154,7 @@ export function GigsPage() {
       {/* Load More */}
       {!loading && gigs.length > 0 && (
         <div className="mt-12 text-center">
-          <Button variant="outline" size="lg">
+          <Button variant="secondary" size="lg">
             Load More Gigs
           </Button>
         </div>
