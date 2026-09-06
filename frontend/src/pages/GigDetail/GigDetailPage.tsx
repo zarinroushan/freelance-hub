@@ -9,7 +9,6 @@ import { ArrowLeft, Clock, User, CheckCircle } from 'lucide-react';
 
 export function GigDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [gig, setGig] = useState<Gig | null>(null);
   const [loading, setLoading] = useState(true);
   const [showApplyModal, setShowApplyModal] = useState(false);
