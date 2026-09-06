@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from '../../components/ui/Card';
+import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
 import { Send, User, Search } from 'lucide-react';
 
 interface Conversation {
@@ -111,30 +110,6 @@ export function MessagesPage() {
     }
   };
 
-  const handleStartConversation = async (userId: number) => {
-    try {
-      const response = await fetch(`/api/messages/start/${userId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSelectedConversation(data.conversation_id);
-        // Refresh conversations
-        const convs = await fetch('/api/messages/conversations', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
-        });
-        if (convs.ok) {
-          setConversations(await convs.json());
-        }
-      }
-    } catch (error) {
-      console.error('Error starting conversation:', error);
-    }
-  };
 
   if (loading) {
     return (

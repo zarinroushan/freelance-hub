@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/context/AuthContext';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
