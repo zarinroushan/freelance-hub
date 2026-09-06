@@ -34,7 +34,7 @@ const USER_STORAGE_KEY = 'unigigs_user';
 const TOKEN_STORAGE_KEY = 'unigigs_token';
 
 // Change this if your backend uses a different port or route
-const API_URL = 'http://localhost:8000/api/auth';
+const API_URL = `${import.meta.env.VITE_API_URL}/api/auth`;
 
 export function AuthProvider({
   children,
