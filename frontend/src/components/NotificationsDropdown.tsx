@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Bell } from 'lucide-react';
+import { apiFetch } from '../services/api';
 
 interface Notification {
   id: number;
@@ -19,12 +20,8 @@ export function NotificationsDropdown() {
     const fetchNotifications = async () => {
       try {
         const [notifsRes, countRes] = await Promise.all([
-          fetch('/api/notifications', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
-          }),
-          fetch('/api/notifications/unread-count', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
-          }),
+          apiFetch('/notifications'),
+          apiFetch('/notifications/unread-count'),
         ]);
 
         if (notifsRes.ok) {
@@ -46,10 +43,7 @@ export function NotificationsDropdown() {
 
   const markAsRead = async (id: number) => {
     try {
-      await fetch(`/api/notifications/${id}/read`, {
-        method: 'PATCH',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
-      });
+      await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' });
       setNotifications(notifications.map(n => 
         n.id === id ? { ...n, is_read: true } : n
       ));

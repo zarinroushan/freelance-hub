@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { DollarSign, TrendingUp, Wallet, CreditCard } from 'lucide-react';
 import { Clock } from 'lucide-react';
+import { apiFetch } from '../../services/api';
 interface Payment {
   id: number;
   contract_id: number;
@@ -26,12 +27,8 @@ export function PaymentsPage() {
     const fetchData = async () => {
       try {
         const [paymentsRes, earningsRes] = await Promise.all([
-          fetch('/api/payments', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-          }),
-          fetch('/api/payments/earnings', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-          }),
+          apiFetch('/payments'),
+          apiFetch('/payments/earnings'),
         ]);
 
         if (paymentsRes.ok) {

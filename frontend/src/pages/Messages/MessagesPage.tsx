@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Send, User, Search } from 'lucide-react';
+import { apiFetch } from '../../services/api';
 
 interface Conversation {
   conversation: {
@@ -40,11 +41,7 @@ export function MessagesPage() {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const response = await fetch('/api/messages/conversations', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
-          },
-        });
+        const response = await apiFetch('/messages/conversations');
         
         if (response.ok) {
           const data = await response.json();
@@ -64,11 +61,7 @@ export function MessagesPage() {
     if (selectedConversation) {
       const fetchMessages = async () => {
         try {
-          const response = await fetch(`/api/messages/conversation/${selectedConversation}`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
-            },
-          });
+          const response = await apiFetch(`/messages/conversation/${selectedConversation}`);
           
           if (response.ok) {
             const data = await response.json();
@@ -88,11 +81,10 @@ export function MessagesPage() {
     if (!newMessage.trim() || !selectedConversation) return;
 
     try {
-      const response = await fetch('/api/messages/send', {
+      const response = await apiFetch('/messages/send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
         },
         body: JSON.stringify({
           conversation_id: selectedConversation,

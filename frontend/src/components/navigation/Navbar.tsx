@@ -56,11 +56,11 @@ export const Navbar: React.FC = () => {
         },
         {
           label: 'How it works',
-          path: '/how-it-works',
+          path: '/#how-it-works',
         },
         {
           label: 'About',
-          path: '/about',
+          path: '/#about',
         },
       ];
     }
@@ -345,11 +345,6 @@ export const Navbar: React.FC = () => {
 
                   </div>
 
-                  <div className="navbar__dropdown-footer">
-                    <Link to="/notifications">
-                      View all notifications
-                    </Link>
-                  </div>
                 </div>
               )}
             </div>
