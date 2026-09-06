@@ -59,7 +59,7 @@ export function PostGigPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
         },
         body: JSON.stringify({
           title: formData.title,

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { gigService } from '../../services/gigs';
 import type { Gig } from '../../types';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { ArrowLeft, Clock, DollarSign, FileText, User, CheckCircle } from 'lucide-react';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { ArrowLeft, Clock, User, CheckCircle } from 'lucide-react';
 
 export function GigDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -34,161 +35,210 @@ export function GigDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-[var(--color-text-muted)]">Loading gig details...</div>
+      <div className="min-h-screen bg-[var(--color-background)]">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div className="mb-8">
+            <Skeleton width={120} height={20} className="mb-8" />
+          </div>
+          
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Main */}
+            <div className="lg:col-span-2 space-y-6">
+              <Skeleton height={300} radius="16px" />
+              <Skeleton width="80%" height={32} className="mb-3" />
+              <Skeleton width="40%" height={24} className="mb-8" />
+              <Card>
+                <CardContent className="p-6 space-y-4">
+                  <Skeleton height={16} />
+                  <Skeleton height={16} />
+                  <Skeleton height={16} width="80%" />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              <Card>
+                <CardContent className="p-6 space-y-4">
+                  <Skeleton height={20} />
+                  <Skeleton height={20} />
+                  <Skeleton height={44} />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <Skeleton width="40%" height={20} />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Skeleton height={60} />
+                  <Skeleton height={16} />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!gig) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold text-[var(--color-text)] mb-4">Gig not found</h1>
-        <Link to="/gigs">
-          <Button>← Back to Gigs</Button>
-        </Link>
+      <div className="min-h-screen bg-[var(--color-background)]">
+        <div className="max-w-4xl mx-auto px-6 py-20 text-center">
+          <h1 className="text-3xl font-bold text-[var(--color-text)] mb-6">Gig not found</h1>
+          <Link to="/gigs">
+            <Button size="md">← Back to Gigs</Button>
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Breadcrumb */}
-      <div className="mb-6">
-        <Link to="/gigs" className="text-[var(--color-primary)] hover:underline flex items-center">
-          <ArrowLeft size={16} className="mr-2" />
+    <div className="min-h-screen bg-[var(--color-background)]">
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        
+        {/* Back Button */}
+        <Link to="/gigs" className="inline-flex items-center text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] font-medium mb-8 transition-colors">
+          <ArrowLeft size={18} className="mr-2" />
           Back to Gigs
         </Link>
-      </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Gig Image */}
-          <div className="h-64 bg-gradient-to-br from-[var(--color-primary)]/30 to-[var(--color-secondary)]/30 rounded-2xl flex items-center justify-center">
-            <span className="text-8xl opacity-50">🌸</span>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content - 65% width */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Gig Image */}
+            <div className="h-80 bg-gradient-to-br from-[var(--color-primary)]/20 to-[var(--color-primary)]/5 rounded-xl flex items-center justify-center border border-[var(--color-border)]">
+              <span className="text-8xl opacity-40">💼</span>
+            </div>
+
+            {/* Title & Meta */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="px-3 py-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs font-bold rounded-full uppercase tracking-wide">
+             Freelance
+                </span>
+                <span className="text-sm font-medium text-[var(--color-text-muted)]">
+                  Posted recently
+                </span>
+              </div>
+              <h1 className="text-4xl font-bold text-[var(--color-text)] mb-6">
+                {gig.title}
+              </h1>
+              <div className="text-4xl font-bold text-[var(--color-primary)]">
+                ₹{gig.budget}
+              </div>
+            </div>
+
+            {/* Description */}
+            {gig.description && (
+              <Card>
+                <CardHeader>
+                  <h2 className="text-xl font-bold text-[var(--color-text)]">Description</h2>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-base leading-relaxed text-[var(--color-text)] whitespace-pre-line">
+                    {gig.description}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Requirements */}
+            {gig.requirements && (
+              <Card>
+                <CardHeader>
+                  <h2 className="text-xl font-bold text-[var(--color-text)]">Requirements</h2>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-base leading-relaxed text-[var(--color-text)]">{gig.requirements}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Deliverables */}
+            {gig.deliverables && (
+              <Card>
+                <CardHeader>
+                  <h2 className="text-xl font-bold text-[var(--color-text)]">Deliverables</h2>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-base leading-relaxed text-[var(--color-text)]">{gig.deliverables}</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
-          {/* Title & Budget */}
-          <div>
-            <div className="flex items-center space-x-3 mb-3">
-              <span className="px-3 py-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-sm font-medium rounded-full">
-                Design
-              </span>
-              <span className="text-[var(--color-text-muted)] text-sm">
-                Posted 2 days ago
-              </span>
-            </div>
-            <h1 className="text-3xl font-bold text-[var(--color-text)] mb-4">
-              {gig.title}
-            </h1>
-            <div className="text-3xl font-bold text-[var(--color-primary)]">
-              ₹{gig.budget}
-            </div>
-          </div>
-
-          {/* Description */}
-          <Card>
-            <CardHeader>
-              <h2 className="font-semibold text-lg flex items-center">
-                <FileText className="w-5 h-5 mr-2 text-[var(--color-primary)]" />
-                Description
-              </h2>
-            </CardHeader>
-            <CardContent>
-              <p className="text-[var(--color-text)] whitespace-pre-line">
-                {gig.description}
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Requirements */}
-          {gig.requirements && (
-            <Card>
-              <CardHeader>
-                <h2 className="font-semibold text-lg">Requirements</h2>
-              </CardHeader>
-              <CardContent>
-                <p className="text-[var(--color-text)]">{gig.requirements}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Deliverables */}
-          {gig.deliverables && (
-            <Card>
-              <CardHeader>
-                <h2 className="font-semibold text-lg">Deliverables</h2>
-              </CardHeader>
-              <CardContent>
-                <p className="text-[var(--color-text)]">{gig.deliverables}</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Apply Card */}
-          <Card className="sticky top-24">
-            <CardContent className="p-6 space-y-4">
-              <div>
-                <div className="text-sm text-[var(--color-text-muted)] mb-1">Budget</div>
-                <div className="text-2xl font-bold text-[var(--color-primary)]">
-                  ₹{gig.budget}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-sm text-[var(--color-text-muted)] mb-1">Delivery Time</div>
-                <div className="flex items-center text-[var(--color-text)]">
-                  <Clock size={16} className="mr-2" />
-                  {gig.delivery_days} days
-                </div>
-              </div>
-
-              <div>
-                <div className="text-sm text-[var(--color-text-muted)] mb-1">Proposals</div>
-                <div className="flex items-center text-[var(--color-text)]">
-                  <User size={16} className="mr-2" />
-                  {gig.application_count} students applied
-                </div>
-              </div>
-
-              <Button fullWidth size="lg" onClick={handleApply}>
-                Apply for this Gig
-              </Button>
-
-              <Button variant="outline" fullWidth>
-                Save Gig
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Client Info */}
-          <Card>
-            <CardHeader>
-              <h3 className="font-semibold">Client Information</h3>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-[var(--color-primary)]/20 rounded-full flex items-center justify-center">
-                  <User size={24} className="text-[var(--color-primary)]" />
-                </div>
+          {/* Sidebar - 35% width */}
+          <div className="space-y-6">
+            {/* Apply Card - Sticky */}
+            <Card className="sticky top-28 shadow-lg">
+              <CardContent className="p-6 space-y-6">
+                {/* Budget Section */}
                 <div>
-                  <div className="font-medium text-[var(--color-text)]">College Event Team</div>
-                  <div className="text-sm text-[var(--color-text-muted)]">Member since 2025</div>
+                  <p className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wide mb-2">Budget</p>
+                  <p className="text-3xl font-bold text-[var(--color-primary)]">
+                    ₹{gig.budget}
+                  </p>
                 </div>
-              </div>
-              <div className="flex items-center justify-between text-sm pt-3 border-t border-[var(--color-border)]">
-                <span className="text-[var(--color-text-muted)]">Payment verified</span>
-                <CheckCircle size={16} className="text-[var(--color-success)]" />
-              </div>
-            </CardContent>
-          </Card>
+
+                <div className="space-y-4 pt-4 border-t border-[var(--color-border)]">
+                  {/* Delivery Time */}
+                  <div>
+                    <p className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wide mb-2">Delivery Time</p>
+                    <div className="flex items-center gap-2 text-base font-medium text-[var(--color-text)]">
+                      <Clock size={18} className="text-[var(--color-primary)]" />
+                      {gig.delivery_days} days
+                    </div>
+                  </div>
+
+                  {/* Proposals */}
+                  <div>
+                    <p className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wide mb-2">Proposals</p>
+                    <div className="flex items-center gap-2 text-base font-medium text-[var(--color-text)]">
+                      <User size={18} className="text-[var(--color-primary)]" />
+                      {gig.application_count} students applied
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="space-y-3 pt-6 border-t border-[var(--color-border)]">
+                  <Button fullWidth size="lg" onClick={handleApply}>
+                    Apply for this Gig
+                  </Button>
+                  <Button variant="secondary" fullWidth size="md">
+                    Save Gig
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Client Info */}
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-bold text-[var(--color-text)]">Client Info</h3>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-[var(--color-primary)]/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User size={28} className="text-[var(--color-primary)]" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-[var(--color-text)]">College Event Team</div>
+                    <div className="text-sm text-[var(--color-text-muted)]">Member since 2025</div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-sm pt-4 border-t border-[var(--color-border)]">
+                  <span className="text-[var(--color-text-muted)]">Payment verified</span>
+                  <CheckCircle size={18} className="text-[var(--color-success)]" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-
+    
       {/* Apply Modal */}
       {showApplyModal && (
         <ApplyModal gigId={gig.id} onClose={() => setShowApplyModal(false)} />
@@ -215,7 +265,7 @@ function ApplyModal({ gigId, onClose }: { gigId: number; onClose: () => void }) 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
         },
         body: JSON.stringify({
           gig_id: gigId,
@@ -246,7 +296,7 @@ function ApplyModal({ gigId, onClose }: { gigId: number; onClose: () => void }) 
   if (success) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-[var(--color-surface)] rounded-2xl p-8 max-w-md w-full text-center">
+        <div className="bg-[var(--color-surface)] rounded-lg p-8 max-w-sm w-full text-center shadow-lg">
           <div className="text-6xl mb-4">🎉</div>
           <h2 className="text-2xl font-bold text-[var(--color-text)] mb-2">
             Application Sent!
@@ -261,59 +311,82 @@ function ApplyModal({ gigId, onClose }: { gigId: number; onClose: () => void }) 
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-[var(--color-surface)] rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold text-[var(--color-text)] mb-6">
-          Submit Your Proposal
-        </h2>
+      <div className="bg-[var(--color-surface)] rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-[var(--color-surface)] border-b border-[var(--color-border)] p-6">
+          <h2 className="text-2xl font-bold text-[var(--color-text)]">
+            Submit Your Proposal
+          </h2>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {/* Price Input */}
           <div>
-            <label className="block text-sm font-medium text-[var(--color-text)] mb-2">
-              Your Price (₹)
+            <label className="block text-sm font-semibold text-[var(--color-text)] mb-2">
+              Your Price
             </label>
-            <input
-              type="number"
-              value={proposedPrice}
-              onChange={(e) => setProposedPrice(e.target.value)}
-              placeholder="Enter amount"
-              required
-              className="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            />
+            <div className="relative">
+              <span className="absolute left-4 top-3 text-[var(--color-text-muted)] font-medium">₹</span>
+              <input
+                type="number"
+                value={proposedPrice}
+                onChange={(e) => setProposedPrice(e.target.value)}
+                placeholder="Enter amount"
+                required
+                className="w-full pl-8 pr-4 h-11 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)] font-medium placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+              />
+            </div>
           </div>
 
+          {/* Delivery Days Input */}
           <div>
-            <label className="block text-sm font-medium text-[var(--color-text)] mb-2">
-              Delivery Time (days)
+            <label className="block text-sm font-semibold text-[var(--color-text)] mb-2">
+              Delivery Time
             </label>
-            <input
-              type="number"
-              value={deliveryDays}
-              onChange={(e) => setDeliveryDays(e.target.value)}
-              placeholder="e.g., 5"
-              required
-              className="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            />
+            <div className="relative">
+              <input
+                type="number"
+                value={deliveryDays}
+                onChange={(e) => setDeliveryDays(e.target.value)}
+                placeholder="e.g., 5"
+                required
+                className="w-full px-4 h-11 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)] font-medium placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+              />
+              <span className="absolute right-4 top-3 text-[var(--color-text-muted)]">days</span>
+            </div>
           </div>
 
+          {/* Cover Letter */}
           <div>
-            <label className="block text-sm font-medium text-[var(--color-text)] mb-2">
+            <label className="block text-sm font-semibold text-[var(--color-text)] mb-2">
               Cover Letter
             </label>
             <textarea
               value={coverLetter}
               onChange={(e) => setCoverLetter(e.target.value)}
-              placeholder="Tell the client why you're the best fit..."
+              placeholder="Tell the client why you're the best fit for this gig..."
               required
-              rows={6}
-              className="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] resize-none"
+              rows={5}
+              className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent resize-none"
             />
           </div>
 
-          <div className="flex space-x-3 pt-4">
-            <Button type="button" variant="ghost" onClick={onClose} className="flex-1">
+          {/* Actions */}
+          <div className="flex gap-3 pt-4 border-t border-[var(--color-border)]">
+            <Button 
+              type="button" 
+              variant="secondary" 
+              onClick={onClose} 
+              fullWidth 
+              size="md"
+            >
               Cancel
             </Button>
-            <Button type="submit" fullWidth disabled={loading} className="flex-1">
+            <Button 
+              type="submit" 
+              fullWidth 
+              size="md"
+              disabled={loading}
+            >
               {loading ? 'Submitting...' : 'Submit Proposal'}
             </Button>
           </div>

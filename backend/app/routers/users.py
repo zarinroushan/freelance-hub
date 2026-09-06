@@ -40,10 +40,15 @@ def get_user_profile(user_id: int, db: Session = Depends(get_db)):
 def get_my_profile(current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
     user_id = int(current_user["user_id"])
     profile = db.query(Profile).filter(Profile.user_id == user_id).first()
+    
     if not profile:
-        raise HTTPException(status_code=404, detail="Profile not found")
+        # Auto-create profile if doesn't exist
+        profile = Profile(user_id=user_id, availability="available")
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+    
     return ProfileResponse.model_validate(profile)
-
 
 @router.post("/profile", response_model=ProfileResponse)
 def create_or_update_profile(
@@ -74,12 +79,19 @@ def update_my_profile(
 ):
     user_id = int(current_user["user_id"])
     profile = db.query(Profile).filter(Profile.user_id == user_id).first()
-    if not profile:
-        raise HTTPException(status_code=404, detail="Profile not found")
     
-    for field, value in profile_data.model_dump(exclude_unset=True).items():
-        if value is not None:
-            setattr(profile, field, value)
+    if not profile:
+        # Create profile if it doesn't exist
+        profile = Profile(
+            user_id=user_id,
+            **profile_data.model_dump(exclude_unset=True)
+        )
+        db.add(profile)
+    else:
+        # Update existing profile
+        for field, value in profile_data.model_dump(exclude_unset=True).items():
+            if value is not None:
+                setattr(profile, field, value)
     
     db.commit()
     db.refresh(profile)

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../services/context/AuthContext';
+import api from '../../services/api';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -31,62 +32,58 @@ export function ProfilePage() {
     availability: 'available',
   });
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch('/api/users/profile/me', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setProfile(data);
-          setFormData({
-            full_name: data.full_name || '',
-            bio: data.bio || '',
-            university: data.university || '',
-            availability: data.availability || 'available',
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
+useEffect(() => {
+  const fetchProfile = async () => {
     try {
-      const response = await fetch('/api/users/profile/me', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(formData),
+      const response = await api.get('/users/profile/me');
+
+      const data = response.data;
+
+      setProfile(data);
+
+      setFormData({
+        full_name: data.full_name || '',
+        bio: data.bio || '',
+        university: data.university || '',
+        availability: data.availability || 'available',
       });
 
-      if (response.ok) {
-        const updated = await response.json();
-        setProfile(updated);
-        setIsEditing(false);
-        alert('Profile updated successfully! ✅');
-      } else {
-        alert('Failed to update profile');
-      }
     } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Failed to update profile');
-    } finally {
-      setLoading(false);
+      console.error('Error fetching profile:', error);
     }
   };
+
+  fetchProfile();
+}, []);
+
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  setLoading(true);
+
+  try {
+    const response = await api.put(
+      '/users/profile/me',
+      formData
+    );
+
+    const updated = response.data;
+
+    setProfile(updated);
+
+    setIsEditing(false);
+
+    alert('Profile updated successfully! ✅');
+
+  } catch (error) {
+    console.error('Error updating profile:', error);
+
+    alert('Failed to update profile');
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

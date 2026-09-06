@@ -99,7 +99,7 @@ export const Navbar: React.FC = () => {
       },
       {
         label: 'My Gigs',
-        path: '/dashboard/gigs',
+        path: '/dashboard',
       },
       {
         label: 'Messages',

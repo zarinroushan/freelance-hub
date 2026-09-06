@@ -43,7 +43,7 @@ export function MessagesPage() {
       try {
         const response = await fetch('/api/messages/conversations', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
           },
         });
         
@@ -67,7 +67,7 @@ export function MessagesPage() {
         try {
           const response = await fetch(`/api/messages/conversation/${selectedConversation}`, {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
             },
           });
           
@@ -93,7 +93,7 @@ export function MessagesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
         },
         body: JSON.stringify({
           conversation_id: selectedConversation,
@@ -116,7 +116,7 @@ export function MessagesPage() {
       const response = await fetch(`/api/messages/start/${userId}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
         },
       });
 
@@ -125,7 +125,7 @@ export function MessagesPage() {
         setSelectedConversation(data.conversation_id);
         // Refresh conversations
         const convs = await fetch('/api/messages/conversations', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
         });
         if (convs.ok) {
           setConversations(await convs.json());

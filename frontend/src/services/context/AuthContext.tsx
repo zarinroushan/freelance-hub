@@ -1,5 +1,12 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
+
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
+
 import type { User } from '../../types';
 
 interface AuthContextType {
@@ -15,12 +22,25 @@ interface AuthContextType {
   isAuthenticated: boolean;
 }
 
+interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: User;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USER_STORAGE_KEY = 'unigigs_user';
-const USERS_STORAGE_KEY = 'unigigs_users';
+const TOKEN_STORAGE_KEY = 'unigigs_token';
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+// Change this if your backend uses a different port or route
+const API_URL = 'http://localhost:8000/api/auth';
+
+export function AuthProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -28,13 +48,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem(USER_STORAGE_KEY);
+      const savedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
 
-      if (savedUser) {
+      if (savedUser && savedToken) {
         setUser(JSON.parse(savedUser));
       }
     } catch (error) {
-      console.error('Failed to load saved user:', error);
+      console.error('Failed to load saved authentication:', error);
+
       localStorage.removeItem(USER_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
     } finally {
       setLoading(false);
     }
@@ -45,112 +68,92 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string,
     role: 'student' | 'client'
-  ) => {
+  ): Promise<void> => {
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!normalizedEmail || !password) {
       throw new Error('Email and password are required.');
     }
 
-    // Get existing users
-    const savedUsers = localStorage.getItem(USERS_STORAGE_KEY);
+    const response = await fetch(`${API_URL}/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: normalizedEmail,
+        password,
+        role,
+      }),
+    });
 
-    const users: Array<{
-      id: number;
-      email: string;
-      password: string;
-      role: 'student' | 'client';
-      is_active: boolean;
-      created_at: string;
-    }> = savedUsers ? JSON.parse(savedUsers) : [];
+    const data = await response.json();
 
-    // Check duplicate email
-    const existingUser = users.find(
-      (existing) => existing.email === normalizedEmail
-    );
-
-    if (existingUser) {
-      throw new Error('An account with this email already exists.');
+    if (!response.ok) {
+      throw new Error(data.detail || 'Registration failed.');
     }
 
-    // Create user
-    const newUser = {
-      id: Date.now(),
-      email: normalizedEmail,
-      password,
-      role,
-      is_active: true,
-      created_at: new Date().toISOString(),
-    };
+    const authData = data as AuthResponse;
 
-    // Save account
     localStorage.setItem(
-      USERS_STORAGE_KEY,
-      JSON.stringify([...users, newUser])
+      TOKEN_STORAGE_KEY,
+      authData.access_token
     );
-
-    // Save logged-in user WITHOUT password
-    const loggedInUser: User = {
-      id: newUser.id,
-      email: newUser.email,
-      role: newUser.role,
-      is_active: newUser.is_active,
-      created_at: newUser.created_at,
-    };
 
     localStorage.setItem(
       USER_STORAGE_KEY,
-      JSON.stringify(loggedInUser)
+      JSON.stringify(authData.user)
     );
 
-    setUser(loggedInUser);
+    setUser(authData.user);
   };
 
   // LOGIN
-  const login = async (email: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<void> => {
     const normalizedEmail = email.trim().toLowerCase();
 
-    const savedUsers = localStorage.getItem(USERS_STORAGE_KEY);
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: normalizedEmail,
+        password,
+      }),
+    });
 
-    const users: Array<{
-      id: number;
-      email: string;
-      password: string;
-      role: 'student' | 'client';
-      is_active: boolean;
-      created_at: string;
-    }> = savedUsers ? JSON.parse(savedUsers) : [];
+    const data = await response.json();
 
-    const existingUser = users.find(
-      (savedUser) =>
-        savedUser.email === normalizedEmail &&
-        savedUser.password === password
-    );
-
-    if (!existingUser) {
-      throw new Error('Invalid email or password.');
+    if (!response.ok) {
+      throw new Error(
+        data.detail || 'Invalid email or password.'
+      );
     }
 
-    // Save logged-in user WITHOUT password
-    const loggedInUser: User = {
-      id: existingUser.id,
-      email: existingUser.email,
-      role: existingUser.role,
-      is_active: existingUser.is_active,
-      created_at: existingUser.created_at,
-    };
+    const authData = data as AuthResponse;
+
+    localStorage.setItem(
+      TOKEN_STORAGE_KEY,
+      authData.access_token
+    );
 
     localStorage.setItem(
       USER_STORAGE_KEY,
-      JSON.stringify(loggedInUser)
+      JSON.stringify(authData.user)
     );
 
-    setUser(loggedInUser);
+    setUser(authData.user);
   };
 
   // LOGOUT
-  const logout = () => {
+  const logout = (): void => {
     localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+
     setUser(null);
   };
 
@@ -169,13 +172,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   );
 }
+// Add these exports for other components to use
+export const getToken = (): string | null => {
+  return localStorage.getItem(TOKEN_STORAGE_KEY);
+};
 
-export function useAuth() {
+export const getUser = (): User | null => {
+  const user = localStorage.getItem(USER_STORAGE_KEY);
+  return user ? JSON.parse(user) : null;
+};
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
 
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error(
+      'useAuth must be used within an AuthProvider'
+    );
   }
 
   return context;
 }
+

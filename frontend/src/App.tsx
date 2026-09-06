@@ -18,6 +18,7 @@ import { PostGigPage } from './pages/PostGig/PostGigPage';
 import { ProfilePage } from './pages/Profile/ProfilePage';
 import { MessagesPage } from './pages/Messages/MessagesPage';
 import { ContractsPage } from './pages/Contracts/ContractsPage';
+import { SettingsPage } from './pages/Settings/SettingsPage';
 
 function App() {
   return (
@@ -142,6 +143,17 @@ function App() {
                   <ProtectedRoute>
                     <Navbar />
                     <ContractsPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Settings */}
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <SettingsPage />
                   </ProtectedRoute>
                 }
               />

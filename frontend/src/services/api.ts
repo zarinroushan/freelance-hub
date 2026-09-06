@@ -9,9 +9,9 @@ const api = axios.create({
   },
 });
 
-// Add token to requests
+// Add token to requests - FIXED: Use correct storage key
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('unigigs_token');  // ✅ FIXED
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -23,8 +23,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      localStorage.removeItem('unigigs_token');  // ✅ FIXED
+      localStorage.removeItem('unigigs_user');   // ✅ FIXED
       window.location.href = '/login';
     }
     return Promise.reject(error);
