@@ -20,10 +20,10 @@ export function NotificationsDropdown() {
       try {
         const [notifsRes, countRes] = await Promise.all([
           fetch('/api/notifications', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
           }),
           fetch('/api/notifications/unread-count', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
           }),
         ]);
 
@@ -48,7 +48,7 @@ export function NotificationsDropdown() {
     try {
       await fetch(`/api/notifications/${id}/read`, {
         method: 'PATCH',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
       });
       setNotifications(notifications.map(n => 
         n.id === id ? { ...n, is_read: true } : n

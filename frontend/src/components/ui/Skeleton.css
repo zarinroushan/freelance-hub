@@ -1,0 +1,64 @@
+/* components/ui/Skeleton.css */
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  display: block;
+  background-color: var(--color-border);
+  background-image: linear-gradient(
+    90deg,
+    var(--color-border) 0,
+    var(--color-surface-alt) 50%,
+    var(--color-border) 100%
+  );
+  background-size: 1000px 100%;
+  animation: skeleton-loading 2s infinite;
+}
+
+.skeleton-card {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-card__image {
+  width: 100%;
+  height: 200px;
+}
+
+.skeleton-card__content {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skeleton-card__title {
+  margin-bottom: var(--space-2);
+}
+
+.skeleton-card__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.skeleton-card__line {
+  display: block;
+}
+
+.skeleton-grid {
+  display: grid;
+  gap: var(--space-6);
+  width: 100%;
+}

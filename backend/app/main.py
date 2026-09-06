@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+
 from app.core.config import settings
 from app.db.database import Base, engine
+
 
 from app.routers import (
     auth,
@@ -12,16 +14,20 @@ from app.routers import (
     contracts,
     messages,
     reviews,
+    notifications,  # ✅ ADDED
 )
+
 
 # Create tables
 Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI(
     title="UniGigs API",
     description="Student-focused freelance/gig marketplace API",
     version="1.0.0",
 )
+
 
 # CORS
 app.add_middleware(
@@ -32,6 +38,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Include routers
 app.include_router(
     auth.router,
@@ -39,11 +46,13 @@ app.include_router(
     tags=["Authentication"]
 )
 
+
 app.include_router(
     users.router,
     prefix="/api/users",
     tags=["Users"]
 )
+
 
 app.include_router(
     gig.router,
@@ -51,11 +60,13 @@ app.include_router(
     tags=["Gigs"]
 )
 
+
 app.include_router(
     application.router,
     prefix="/api/applications",
     tags=["Applications"]
 )
+
 
 app.include_router(
     contracts.router,
@@ -63,16 +74,25 @@ app.include_router(
     tags=["Contracts"]
 )
 
+
 app.include_router(
     messages.router,
     prefix="/api/messages",
     tags=["Messages"]
 )
 
+
 app.include_router(
     reviews.router,
     prefix="/api/reviews",
     tags=["Reviews"]
+)
+
+
+app.include_router(
+    notifications.router,
+    prefix="/api/notifications",
+    tags=["Notifications"]  # ✅ ADDED
 )
 
 
