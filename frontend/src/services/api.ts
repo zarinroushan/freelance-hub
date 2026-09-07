@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = '/api';
+const API_URL = 'https://unigigs-backend-bn74.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_URL,
