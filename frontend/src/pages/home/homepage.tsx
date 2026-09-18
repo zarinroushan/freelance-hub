@@ -157,7 +157,7 @@ export function HomePage() {
               <div className="overflow-hidden rounded-[var(--radius-xl)] shadow-[var(--shadow-lg)]">
 
                 <img
-                  src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1000&h=700&fit=crop"
+                  src="/hero-background.png"
                   alt="Students working together"
                   className="w-full h-[320px] md:h-[420px] object-cover"
                 />
