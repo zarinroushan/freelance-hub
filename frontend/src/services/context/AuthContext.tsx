@@ -1,74 +1,195 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
 
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
+
+import { API_BASE_URL } from '../api';
 import type { User } from '../../types';
-import { authService } from '../auth';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, role: 'student' | 'client') => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    role: 'student' | 'client'
+  ) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
 
+interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: User;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+const USER_STORAGE_KEY = 'unigigs_user';
+const TOKEN_STORAGE_KEY = 'unigigs_token';
+
+const API_URL = `${API_BASE_URL}/auth`;
+
+export function AuthProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Load saved login when the app starts
   useEffect(() => {
-    const initAuth = async () => {
-      const currentUser = authService.getCurrentUser();
-      if (currentUser) {
-        try {
-          const verifiedUser = await authService.getMe();
-          setUser(verifiedUser);
-        } catch (error) {
-          authService.logout();
-        }
-      }
-      setLoading(false);
-    };
+    try {
+      const savedUser = localStorage.getItem(USER_STORAGE_KEY);
+      const savedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
 
-    initAuth();
+      if (savedUser && savedToken) {
+        setUser(JSON.parse(savedUser));
+      }
+    } catch (error) {
+      console.error('Failed to load saved authentication:', error);
+
+      localStorage.removeItem(USER_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const response = await authService.login({ email, password });
-    setUser(response.user);
+  // REGISTER
+  const register = async (
+    email: string,
+    password: string,
+    role: 'student' | 'client'
+  ): Promise<void> => {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail || !password) {
+      throw new Error('Email and password are required.');
+    }
+
+    const response = await fetch(`${API_URL}/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: normalizedEmail,
+        password,
+        role,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || 'Registration failed.');
+    }
+
+    const authData = data as AuthResponse;
+
+    localStorage.setItem(
+      TOKEN_STORAGE_KEY,
+      authData.access_token
+    );
+
+    localStorage.setItem(
+      USER_STORAGE_KEY,
+      JSON.stringify(authData.user)
+    );
+
+    setUser(authData.user);
   };
 
-  const register = async (email: string, password: string, role: 'student' | 'client') => {
-    const response = await authService.register({ email, password, role });
-    setUser(response.user);
+  // LOGIN
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<void> => {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: normalizedEmail,
+        password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.detail || 'Invalid email or password.'
+      );
+    }
+
+    const authData = data as AuthResponse;
+
+    localStorage.setItem(
+      TOKEN_STORAGE_KEY,
+      authData.access_token
+    );
+
+    localStorage.setItem(
+      USER_STORAGE_KEY,
+      JSON.stringify(authData.user)
+    );
+
+    setUser(authData.user);
   };
 
-  const logout = () => {
-    authService.logout();
+  // LOGOUT
+  const logout = (): void => {
+    localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      loading,
-      login,
-      register,
-      logout,
-      isAuthenticated: !!user,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
+// Add these exports for other components to use
+export const getToken = (): string | null => {
+  return localStorage.getItem(TOKEN_STORAGE_KEY);
+};
 
-export function useAuth() {
+export const getUser = (): User | null => {
+  const user = localStorage.getItem(USER_STORAGE_KEY);
+  return user ? JSON.parse(user) : null;
+};
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
+
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error(
+      'useAuth must be used within an AuthProvider'
+    );
   }
+
   return context;
 }
+

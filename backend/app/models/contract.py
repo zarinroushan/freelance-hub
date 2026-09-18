@@ -30,7 +30,7 @@ class Contract(Base):
     completion_date = Column(DateTime)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+    payment = relationship("Payment", back_populates="contract", uselist=False)
     gig = relationship("Gig")
     application = relationship("Application", back_populates="contract")
     client = relationship("User", back_populates="contracts_as_client", foreign_keys=[client_id])

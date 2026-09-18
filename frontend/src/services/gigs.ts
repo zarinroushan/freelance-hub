@@ -49,6 +49,11 @@ export const gigService = {
     return response.data;
   },
 
+  async getMyGigs(): Promise<Gig[]> {
+    const response = await api.get<Gig[]>('/gigs/my-gigs');
+    return response.data;
+  },
+
   async saveGig(gigId: number): Promise<void> {
     await api.post(`/gigs/${gigId}/save`);
   },

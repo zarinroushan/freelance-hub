@@ -41,7 +41,9 @@ class GigResponse(BaseModel):
     budget: int
     delivery_days: int
     status: GigStatus
-    application_count: int
+    requirements: Optional[str] = None
+    deliverables: Optional[str] = None
+    application_count: int = 0
     created_at: datetime
     
     class Config:

@@ -1,89 +1,504 @@
+/* ===================================
+   UNIGIGS DESIGN TOKENS
+   Professional Student Freelance Platform
+   Blue + Yellow Theme
+=================================== */
+
 :root {
-  /* Light Mode Colors - Cherry Blossom Theme */
-  --color-primary: #d4a5a5;
-  --color-primary-hover: #c99494;
-  --color-secondary: #8b5a6b;
-  --color-background: #fef9f5;
-  --color-surface: #ffffff;
-  --color-surface-alt: #fff5f7;
-  --color-text: #1a202c;
-  --color-text-muted: #718096;
-  --color-border: #e2e8f0;
-  --color-success: #68d391;
-  --color-warning: #f6ad55;
-  --color-error: #fc8181;
-  
-  /* Spacing */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
-  
-  /* Border Radius */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+
+  /* ===================================
+     BRAND COLORS
+  =================================== */
+
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-primary-dark: #1E40AF;
+  --color-primary-light: #EFF6FF;
+
+  --color-navy: #0F172A;
+  --color-navy-light: #1E293B;
+
+  /* Yellow Accent - Use Sparingly */
+
+  --color-accent: #FBBF24;
+  --color-accent-hover: #F59E0B;
+  --color-accent-light: #FEF3C7;
+
+
+  /* ===================================
+     BACKGROUNDS
+  =================================== */
+
+  --color-bg: #FFFFFF;
+  --color-background: #FFFFFF;
+
+  --color-bg-alt: #F8FAFC;
+  --color-background-alt: #F8FAFC;
+
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F1F5F9;
+
+  --color-surface-elevated: #FFFFFF;
+
+
+  /* ===================================
+     TYPOGRAPHY COLORS
+  =================================== */
+
+  --color-text: #0F172A;
+
+  --color-text-secondary: #475569;
+
+  --color-text-muted: #64748B;
+
+  --color-text-light: #94A3B8;
+
+  --color-text-inverse: #FFFFFF;
+
+
+  /* ===================================
+     BORDERS
+  =================================== */
+
+  --color-border: #E2E8F0;
+
+  --color-border-strong: #CBD5E1;
+
+
+  /* ===================================
+     STATUS COLORS
+  =================================== */
+
+  --color-success: #10B981;
+  --color-success-bg: #D1FAE5;
+
+  --color-error: #EF4444;
+  --color-error-bg: #FEE2E2;
+
+  --color-warning: #F59E0B;
+  --color-warning-bg: #FEF3C7;
+
+  --color-info: #2563EB;
+  --color-info-bg: #DBEAFE;
+
+
+  /* ===================================
+     SPACING SYSTEM
+     Based on 4px Grid
+  =================================== */
+
+  --space-0: 0;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  --space-8: 32px;
+
+  --space-10: 40px;
+
+  --space-12: 48px;
+
+  --space-16: 64px;
+
+  --space-20: 80px;
+
+  --space-24: 96px;
+
+
+  /* ===================================
+     COMPATIBILITY SPACING VARIABLES
+  =================================== */
+
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+  --spacing-xl: 40px;
+  --spacing-2xl: 64px;
+  --spacing-3xl: 80px;
+
+
+  /* ===================================
+     TYPOGRAPHY
+  =================================== */
+
+  --font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Arial,
+    sans-serif;
+
+
+  /* Font Sizes */
+
+  --text-xs: 12px;
+
+  --text-sm: 14px;
+
+  --text-base: 16px;
+
+  --text-lg: 18px;
+
+  --text-xl: 20px;
+
+  --text-2xl: 24px;
+
+  --text-3xl: 30px;
+
+  --text-4xl: 36px;
+
+  --text-5xl: 48px;
+
+  --text-6xl: 60px;
+
+  --text-7xl: 72px;
+
+
+  /* Font Weights */
+
+  --font-normal: 400;
+
+  --font-medium: 500;
+
+  --font-semibold: 600;
+
+  --font-bold: 700;
+
+
+  /* Line Heights */
+
+  --leading-none: 1;
+
+  --leading-tight: 1.2;
+
+  --leading-snug: 1.35;
+
+  --leading-normal: 1.5;
+
+  --leading-relaxed: 1.6;
+
+
+  /* Letter Spacing */
+
+  --tracking-tight: -0.025em;
+
+  --tracking-normal: 0;
+
+  --tracking-wide: 0.025em;
+
+
+  /* ===================================
+     CONTAINERS
+  =================================== */
+
+  --container-sm: 640px;
+
+  --container-md: 768px;
+
+  --container-lg: 1024px;
+
+  --container-xl: 1200px;
+
+  --container-2xl: 1400px;
+
+
+  /* ===================================
+     NAVIGATION
+  =================================== */
+
+  --navbar-height: 72px;
+
+
+  /* ===================================
+     BORDER RADIUS
+  =================================== */
+
+  --radius-sm: 6px;
+
+  --radius: 8px;
+
+  --radius-md: 12px;
+
+  --radius-lg: 16px;
+
+  --radius-xl: 20px;
+
+  --radius-2xl: 24px;
+
   --radius-full: 9999px;
-  
+
+
+  /* ===================================
+     SHADOWS
+     Subtle and Professional
+  =================================== */
+
+  --shadow-sm:
+    0 1px 2px rgba(15, 23, 42, 0.05);
+
+  --shadow:
+    0 2px 4px rgba(15, 23, 42, 0.06);
+
+  --shadow-md:
+    0 4px 12px rgba(15, 23, 42, 0.08);
+
+  --shadow-lg:
+    0 10px 25px rgba(15, 23, 42, 0.10);
+
+  --shadow-xl:
+    0 20px 40px rgba(15, 23, 42, 0.12);
+
+
+  /* ===================================
+     TRANSITIONS
+  =================================== */
+
+  --transition-fast: 150ms ease;
+
+  --transition: 200ms ease;
+
+  --transition-slow: 300ms ease;
+
+}
+
+
+/* ===================================
+   DARK MODE
+=================================== */
+
+[data-theme='dark'] {
+
+  /* Brand */
+
+  --color-primary: #60A5FA;
+
+  --color-primary-hover: #93C5FD;
+
+  --color-primary-dark: #3B82F6;
+
+  --color-primary-light: #172554;
+
+
+  /* Backgrounds */
+
+  --color-bg: #0F172A;
+
+  --color-background: #0F172A;
+
+  --color-bg-alt: #111827;
+
+  --color-background-alt: #111827;
+
+  --color-surface: #1E293B;
+
+  --color-surface-alt: #334155;
+
+  --color-surface-elevated: #1E293B;
+
+
+  /* Text */
+
+  --color-text: #F8FAFC;
+
+  --color-text-secondary: #CBD5E1;
+
+  --color-text-muted: #94A3B8;
+
+  --color-text-light: #64748B;
+
+  --color-text-inverse: #0F172A;
+
+
+  /* Borders */
+
+  --color-border: #334155;
+
+  --color-border-strong: #475569;
+
+
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  
-  /* Typography */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
+
+  --shadow-sm:
+    0 1px 2px rgba(0, 0, 0, 0.25);
+
+  --shadow:
+    0 2px 4px rgba(0, 0, 0, 0.25);
+
+  --shadow-md:
+    0 4px 12px rgba(0, 0, 0, 0.30);
+
+  --shadow-lg:
+    0 10px 25px rgba(0, 0, 0, 0.35);
+
 }
 
-.dark {
-  /* Dark Mode Colors */
-  --color-primary: #c99494;
-  --color-primary-hover: #d4a5a5;
-  --color-secondary: #a87082;
-  --color-background: #1a1a2e;
-  --color-surface: #16213e;
-  --color-surface-alt: #1f2947;
-  --color-text: #f7fafc;
-  --color-text-muted: #a0aec0;
-  --color-border: #2d3748;
-  --color-success: #48bb78;
-  --color-warning: #ed8936;
-  --color-error: #f56565;
-}
 
-* {
+/* ===================================
+   GLOBAL RESET
+=================================== */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
+
+
+html {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+
+  scroll-behavior: smooth;
+}
+
 
 body {
+  width: 100%;
+  max-width: 100%;
+
+  margin: 0;
+  padding: 0;
+
+  overflow-x: hidden;
+
   font-family: var(--font-family);
+
   background-color: var(--color-background);
+
   color: var(--color-text);
-  line-height: 1.6;
-  transition: background-color 0.3s ease, color 0.3s ease;
+
+  line-height: var(--leading-normal);
+
+  -webkit-font-smoothing: antialiased;
+
+  -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  color: var(--color-primary);
-  text-decoration: none;
+
+/* ===================================
+   BASIC ELEMENT RESET
+=================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
 }
 
-a:hover {
-  text-decoration: underline;
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
+
 
 button {
   cursor: pointer;
-  font-family: var(--font-family);
+}
+
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+
+  max-width: 100%;
+}
+
+
+/* ===================================
+   LINKS
+=================================== */
+
+a {
+  color: inherit;
+
+  text-decoration: none;
+
+  transition:
+    color var(--transition),
+    opacity var(--transition);
+}
+
+
+a:hover {
+  color: var(--color-primary);
+}
+
+
+/* ===================================
+   CONTAINER SYSTEM
+=================================== */
+
+.container {
+  width: 100%;
+
+  max-width: var(--container-xl);
+
+  margin-left: auto;
+
+  margin-right: auto;
+
+  padding-left: var(--space-6);
+
+  padding-right: var(--space-6);
+}
+
+
+/* ===================================
+   RESPONSIVE CONTAINER
+=================================== */
+
+@media (max-width: 768px) {
+
+  .container {
+
+    padding-left: var(--space-4);
+
+    padding-right: var(--space-4);
+
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .container {
+
+    padding-left: var(--space-3);
+
+    padding-right: var(--space-3);
+
+  }
+
+}
+
+
+/* ===================================
+   ACCESSIBILITY
+=================================== */
+
+:focus-visible {
+
+  outline: 3px solid var(--color-primary);
+
+  outline-offset: 3px;
+
 }

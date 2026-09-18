@@ -1,0 +1,67 @@
+/* components/ui/ThemeToggle.css */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  background-color: var(--color-border);
+}
+
+.theme-toggle__track {
+  position: relative;
+  width: 56px;
+  height: 32px;
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  padding: var(--space-1);
+}
+
+.theme-toggle__indicator {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-slow);
+  color: var(--color-text-inverse);
+}
+
+.theme-toggle__indicator[data-theme="light"] {
+  transform: translateX(0);
+}
+
+.theme-toggle__indicator[data-theme="dark"] {
+  transform: translateX(24px);
+}
+
+.theme-toggle__icon {
+  position: absolute;
+  transition: opacity var(--transition-fast);
+}
+
+.theme-toggle__icon--sun {
+  opacity: 1;
+}
+
+.theme-toggle__icon--moon {
+  opacity: 0;
+}
+
+.theme-toggle__indicator[data-theme="dark"] .theme-toggle__icon--sun {
+  opacity: 0;
+}
+
+.theme-toggle__indicator[data-theme="dark"] .theme-toggle__icon--moon {
+  opacity: 1;
+}

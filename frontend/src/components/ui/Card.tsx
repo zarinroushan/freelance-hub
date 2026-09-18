@@ -1,31 +1,46 @@
 import React from 'react';
+import './Card.css';
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
 }
 
-export function Card({ children, className = '', onClick }: CardProps) {
+interface CardSectionProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
+
+export const Card: React.FC<CardProps> = ({
+  children,
+  className = '',
+  ...props
+}) => {
   return (
-    <div
-      onClick={onClick}
-      className={`bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-sm 
-        hover:shadow-md transition-shadow ${onClick ? 'cursor-pointer' : ''} ${className}`}
-    >
+    <div className={`card ${className}`} {...props}>
       {children}
     </div>
   );
-}
+};
 
-export function CardHeader({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <div className={`px-6 py-4 border-b border-[var(--color-border)] ${className}`}>{children}</div>;
-}
+export const CardHeader: React.FC<CardSectionProps> = ({
+  children,
+  className = '',
+  ...props
+}) => {
+  return (
+    <div className={`card-header ${className}`} {...props}>
+      {children}
+    </div>
+  );
+};
 
-export function CardContent({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <div className={`px-6 py-4 ${className}`}>{children}</div>;
-}
-
-export function CardFooter({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <div className={`px-6 py-4 border-t border-[var(--color-border)] bg-[var(--color-surface-alt)] ${className}`}>{children}</div>;
-}
+export const CardContent: React.FC<CardSectionProps> = ({
+  children,
+  className = '',
+  ...props
+}) => {
+  return (
+    <div className={`card-content ${className}`} {...props}>
+      {children}
+    </div>
+  );
+};

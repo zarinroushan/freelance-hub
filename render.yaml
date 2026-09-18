@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: unigigs-backend
+    env: python
+    rootDir: backend
+    buildCommand: ./build.sh
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: unigigs-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "30"
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: "7"
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: APP_ENV
+        value: production
+
+databases:
+  - name: unigigs-db
+    databaseName: unigigs
+    user: unigigs_user
