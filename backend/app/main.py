@@ -1,9 +1,15 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 
 from app.core.config import settings
 from app.db.database import Base, engine
+import app.models  # noqa: F401  – registers every table with Base.metadata
+
+logger = logging.getLogger("unigigs")
 
 
 from app.routers import (
@@ -17,29 +23,41 @@ from app.routers import (
     notifications,  # ✅ ADDED
 )
 
-
-# Create tables
-Base.metadata.create_all(bind=engine)
-
-
 app = FastAPI(
     title="UniGigs API",
     description="Student-focused freelance/gig marketplace API",
     version="1.0.0",
+    debug=False,
+    swagger_ui_parameters={"syntaxHighlight": "monokai"},
+    swagger_url="/docs",
+    openapi_url="/openapi.json",
 )
 
-# CORS
+
+# ── CORS (must be added FIRST so it wraps everything) ──────────────
+cors_origins = settings.cors_origins_list
+
+if "*" in cors_origins:
+    allow_origins = ["*"]
+else:
+    allow_origins = cors_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://uni-gigs-kappa.vercel.app",
-        "http://localhost:5173",
-        "http://localhost:3000",
-    ],
-    allow_credentials=True,
+    allow_origins=allow_origins,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+
+# ── Create tables if they don't exist (safety net for deployments) ──
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception:
+    logger.exception("Failed to auto-create database tables on startup")
+
 
 # Include routers
 app.include_router(

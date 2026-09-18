@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../../services/context/AuthContext';
 import api from '../../services/api';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { User, Mail, MapPin, Briefcase, Star, Edit2, Save } from 'lucide-react';
+import { User, Briefcase, Edit2, Save } from 'lucide-react';
 
 interface Profile {
   id: number;
@@ -21,8 +21,10 @@ interface Profile {
 }
 
 export function ProfilePage() {
+  const { userId } = useParams<{ userId?: string }>();
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [userEmail, setUserEmail] = useState<string>('');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,29 +34,46 @@ export function ProfilePage() {
     availability: 'available',
   });
 
-useEffect(() => {
-  const fetchProfile = async () => {
-    try {
-      const response = await api.get('/users/profile/me');
+  const isOwnProfile = !userId || (user && Number(userId) === user.id);
 
-      const data = response.data;
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        if (!isOwnProfile && userId) {
+          const response = await api.get(`/users/${userId}`);
+          const data = response.data;
+          if (data.profile) {
+            setProfile(data.profile);
+          } else {
+            setProfile({
+              id: 0,
+              user_id: Number(userId),
+              full_name: data.user?.email ? data.user.email.split('@')[0] : `User #${userId}`,
+              availability: 'available',
+              completed_gigs_count: 0,
+              average_rating: data.stats?.average_rating || 0,
+            });
+          }
+          setUserEmail(data.user?.email || '');
+        } else {
+          const response = await api.get('/users/profile/me');
+          const data = response.data;
+          setProfile(data);
+          setUserEmail(user?.email || '');
+          setFormData({
+            full_name: data.full_name || '',
+            bio: data.bio || '',
+            university: data.university || '',
+            availability: data.availability || 'available',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
 
-      setProfile(data);
-
-      setFormData({
-        full_name: data.full_name || '',
-        bio: data.bio || '',
-        university: data.university || '',
-        availability: data.availability || 'available',
-      });
-
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
-
-  fetchProfile();
-}, []);
+    fetchProfile();
+  }, [userId, isOwnProfile, user]);
 
  const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -108,7 +127,7 @@ useEffect(() => {
               <h2 className="text-2xl font-bold text-[var(--color-text)] mb-1">
                 {profile?.full_name || 'User'}
               </h2>
-              <p className="text-[var(--color-text-muted)] mb-4">{user?.email}</p>
+              <p className="text-[var(--color-text-muted)] mb-4">{userEmail || user?.email}</p>
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-4 py-4 border-t border-b border-[var(--color-border)] mb-4">
@@ -140,10 +159,12 @@ useEffect(() => {
                 </span>
               </div>
 
-              <Button onClick={() => setIsEditing(!isEditing)}>
-                <Edit2 size={16} className="mr-2" />
-                {isEditing ? 'Cancel' : 'Edit Profile'}
-              </Button>
+              {isOwnProfile && (
+                <Button onClick={() => setIsEditing(!isEditing)}>
+                  <Edit2 size={16} className="mr-2" />
+                  {isEditing ? 'Cancel' : 'Edit Profile'}
+                </Button>
+              )}
             </CardContent>
           </Card>
 

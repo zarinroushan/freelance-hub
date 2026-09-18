@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Mail, Lock, User } from 'lucide-react';
 
 export function SignupPage() {
   const [email, setEmail] = useState('');
@@ -36,7 +35,7 @@ export function SignupPage() {
       await register(email, password, role);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Signup failed. Please try again.');
+      setError(err.message || err.response?.data?.detail || 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }

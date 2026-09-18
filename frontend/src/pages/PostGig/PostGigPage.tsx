@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL, getAuthToken } from '../../services/api';
 import { useAuth } from '../../services/context/AuthContext';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
 
 interface Category {
   id: number;
@@ -30,7 +30,7 @@ export function PostGigPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/gigs/categories');
+        const response = await fetch(`${API_BASE_URL}/gigs/categories`);
         if (response.ok) {
           const data = await response.json();
           setCategories(data);
@@ -55,11 +55,11 @@ export function PostGigPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/gigs', {
+      const response = await fetch(`${API_BASE_URL}/gigs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
+          'Authorization': `Bearer ${getAuthToken()}`,
         },
         body: JSON.stringify({
           title: formData.title,
@@ -77,11 +77,19 @@ export function PostGigPage() {
         navigate('/dashboard');
       } else {
         const error = await response.json();
-        alert(error.detail || 'Failed to post gig');
+        let errorMsg = 'Failed to post gig';
+        if (typeof error.detail === 'string') {
+          errorMsg = error.detail;
+        } else if (Array.isArray(error.detail)) {
+          errorMsg = error.detail.map((e: any) => `${e.loc?.slice(1).join('.') || 'field'}: ${e.msg}`).join('\n');
+        } else if (error.message) {
+          errorMsg = error.message;
+        }
+        alert(errorMsg);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error posting gig:', error);
-      alert('Failed to post gig. Please try again.');
+      alert(error.message || 'Failed to post gig. Please try again.');
     } finally {
       setLoading(false);
     }

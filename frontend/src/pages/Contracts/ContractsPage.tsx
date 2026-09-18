@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader } from '../../components/ui/Card';
+import { useEffect, useState } from 'react';
+import { API_BASE_URL, getAuthToken } from '../../services/api';
+import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Briefcase, Clock, DollarSign, CheckCircle, Package } from 'lucide-react';
 
@@ -21,9 +22,9 @@ export function ContractsPage() {
   useEffect(() => {
     const fetchContracts = async () => {
       try {
-        const response = await fetch('/api/contracts', {
+        const response = await fetch(`${API_BASE_URL}/contracts`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${getAuthToken()}`,
           },
         });
         
@@ -57,11 +58,11 @@ export function ContractsPage() {
     if (!description) return;
 
     try {
-      const response = await fetch(`/api/contracts/${contractId}/deliver`, {
+      const response = await fetch(`${API_BASE_URL}/contracts/${contractId}/deliver`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${getAuthToken()}`,
         },
         body: JSON.stringify({
           description,
@@ -72,8 +73,8 @@ export function ContractsPage() {
       if (response.ok) {
         alert('Work submitted successfully! ✅');
         // Refresh contracts
-        const contracts = await fetch('/api/contracts', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        const contracts = await fetch(`${API_BASE_URL}/contracts`, {
+          headers: { 'Authorization': `Bearer ${getAuthToken()}` },
         });
         if (contracts.ok) {
           setContracts(await contracts.json());
@@ -91,18 +92,18 @@ export function ContractsPage() {
     if (!confirm('Approve this work and release payment?')) return;
 
     try {
-      const response = await fetch(`/api/contracts/${contractId}/approve`, {
+      const response = await fetch(`${API_BASE_URL}/contracts/${contractId}/approve`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${getAuthToken()}`,
         },
       });
 
       if (response.ok) {
         alert('Work approved! Payment released. 🎉');
         // Refresh contracts
-        const contracts = await fetch('/api/contracts', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        const contracts = await fetch(`${API_BASE_URL}/contracts`, {
+          headers: { 'Authorization': `Bearer ${getAuthToken()}` },
         });
         if (contracts.ok) {
           setContracts(await contracts.json());

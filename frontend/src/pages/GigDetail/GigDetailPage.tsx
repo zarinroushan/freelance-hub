@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../services/context/AuthContext';
 import { gigService } from '../../services/gigs';
+import { API_BASE_URL, getAuthToken } from '../../services/api';
 import type { Gig } from '../../types';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { ArrowLeft, Clock, User, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Clock, User, CheckCircle, Eye } from 'lucide-react';
 
 export function GigDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [gig, setGig] = useState<Gig | null>(null);
   const [loading, setLoading] = useState(true);
   const [showApplyModal, setShowApplyModal] = useState(false);
@@ -204,9 +206,18 @@ export function GigDetailPage() {
 
                 {/* Actions */}
                 <div className="space-y-3 pt-6 border-t border-[var(--color-border)]">
-                  <Button fullWidth size="lg" onClick={handleApply}>
-                    Apply for this Gig
-                  </Button>
+                  {user && gig && user.id === gig.client_id ? (
+                    <Link to={`/applications/${gig.id}`} className="block">
+                      <Button fullWidth size="lg" className="flex items-center justify-center gap-2">
+                        <Eye size={18} />
+                        See Applications ({gig.application_count})
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button fullWidth size="lg" onClick={handleApply}>
+                      Apply for this Gig
+                    </Button>
+                  )}
                   <Button variant="secondary" fullWidth size="md">
                     Save Gig
                   </Button>
@@ -261,11 +272,11 @@ function ApplyModal({ gigId, onClose }: { gigId: number; onClose: () => void }) 
     setLoading(true);
 
     try {
-      const response = await fetch('/api/applications', {
+      const response = await fetch(`${API_BASE_URL}/applications`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
+          'Authorization': `Bearer ${getAuthToken()}`,
         },
         body: JSON.stringify({
           gig_id: gigId,

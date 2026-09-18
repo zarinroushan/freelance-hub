@@ -43,18 +43,22 @@ class ProfileUpdate(BaseModel):
     bio: Optional[str] = None
     university: Optional[str] = None
     avatar_url: Optional[str] = None
+    availability: Optional[str] = None
+    skills_summary: Optional[str] = None
 
 
 class ProfileResponse(BaseModel):
     id: int
     user_id: int
     full_name: str
-    bio: Optional[str]
-    university: Optional[str]
-    avatar_url: Optional[str]
-    availability: str
-    completed_gigs_count: int
-    average_rating: int
+    bio: Optional[str] = None
+    university: Optional[str] = None
+    avatar_url: Optional[str] = None
+    availability: str = "available"
+    skills_summary: Optional[str] = None
+    completed_gigs_count: int = 0
+    average_rating: int = 0
+    total_earnings: int = 0
     created_at: datetime
     
     class Config:

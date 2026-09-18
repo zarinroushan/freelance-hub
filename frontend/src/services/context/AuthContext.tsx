@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 
+import { API_BASE_URL } from '../api';
 import type { User } from '../../types';
 
 interface AuthContextType {
@@ -33,8 +34,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const USER_STORAGE_KEY = 'unigigs_user';
 const TOKEN_STORAGE_KEY = 'unigigs_token';
 
-// Change this if your backend uses a different port or route
-const API_URL = 'https://unigigs-backend-bn74.onrender.com/api/auth';
+const API_URL = `${API_BASE_URL}/auth`;
 
 export function AuthProvider({
   children,

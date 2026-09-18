@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../services/context/AuthContext';
+import { API_BASE_URL, getAuthToken } from '../../services/api';
 import { gigService } from '../../services/gigs';
 import type { Gig } from '../../types';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
@@ -19,9 +20,9 @@ export function DashboardPage() {
       try {
         // Fetch stats - handle missing endpoint gracefully
         try {
-          const statsResponse = await fetch('/api/users/me/stats', {
+          const statsResponse = await fetch(`${API_BASE_URL}/users/me/stats`, {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
+              'Authorization': `Bearer ${getAuthToken()}`,
             },
           });
           if (statsResponse.ok) {
@@ -63,12 +64,12 @@ export function DashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--color-background)]">
-        <div className="max-w-6xl mx-auto px-6 py-12">
+        <div className="max-w-5xl mx-auto px-6 py-12">
           <div className="mb-12">
             <Skeleton width="40%" height={40} className="mb-3" />
             <Skeleton width="60%" height={24} />
           </div>
-          
+
           {/* Stats skeleton */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {[1, 2, 3, 4].map((i) => (
@@ -276,10 +277,10 @@ export function DashboardPage() {
         <div className="grid md:grid-cols-3 gap-8">
           {/* Quick Links */}
           <Card className="md:row-span-1">
-            <CardHeader className="pb-6">
+            <CardHeader className="px-6 pt-6">
               <h3 className="text-xl font-bold text-[var(--color-text)]">Quick Links</h3>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="p-6 space-y-3">
               <Link to="/gigs" className="block">
                 <Button variant="secondary" fullWidth size="md">
                   <Briefcase className="w-5 h-5 mr-2" />
@@ -303,7 +304,7 @@ export function DashboardPage() {
 
           {/* Recent Gigs */}
           <Card className="md:col-span-2">
-            <CardHeader className="pb-6">
+            <CardHeader className="px-6 pt-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold text-[var(--color-text)]">
                   {isStudent ? "Recently Posted Gigs" : "Your Recent Gigs"}
@@ -315,7 +316,7 @@ export function DashboardPage() {
                 </Link>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               {recentGigs.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-[var(--color-text-muted)] mb-4">No gigs found</p>

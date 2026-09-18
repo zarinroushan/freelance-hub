@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { API_BASE_URL, getAuthToken } from '../../services/api';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { DollarSign, TrendingUp, Wallet, CreditCard } from 'lucide-react';
@@ -25,12 +26,13 @@ export function PaymentsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = getAuthToken();
         const [paymentsRes, earningsRes] = await Promise.all([
-          fetch('/api/payments', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+          fetch(`${API_BASE_URL}/payments`, {
+            headers: { 'Authorization': `Bearer ${token}` },
           }),
-          fetch('/api/payments/earnings', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+          fetch(`${API_BASE_URL}/payments/earnings`, {
+            headers: { 'Authorization': `Bearer ${token}` },
           }),
         ]);
 

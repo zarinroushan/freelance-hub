@@ -1,4 +1,3 @@
-import React from 'react';
 import './Skeleton.css';
 
 interface SkeletonProps {
@@ -59,7 +58,6 @@ interface SkeletonGridProps {
 }
 
 export function SkeletonGrid({
-  columns = 3,
   count = 6,
   className = '',
 }: SkeletonGridProps) {

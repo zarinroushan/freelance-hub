@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import { ThemeProvider } from './services/context/ThemeContext';
@@ -14,6 +13,7 @@ import { DashboardPage } from './pages/Dashboard/DashboardPage';
 import { GigsPage } from './components/gigs/GigsPage';
 import { GigDetailPage } from './pages/GigDetail/GigDetailPage';
 import { ApplicationsPage } from './pages/applications/ApplicationsPage';
+import { GigApplicationsPage } from './pages/applications/GigApplicationsPage';
 import { PostGigPage } from './pages/PostGig/PostGigPage';
 import { ProfilePage } from './pages/Profile/ProfilePage';
 import { MessagesPage } from './pages/Messages/MessagesPage';
@@ -92,13 +92,34 @@ function App() {
                 }
               />
 
-              {/* Applications */}
+              {/* Applications List */}
               <Route
                 path="/applications"
                 element={
                   <ProtectedRoute>
                     <Navbar />
                     <ApplicationsPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Gig Applications View (Gig Owner) */}
+              <Route
+                path="/applications/:gigId"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <GigApplicationsPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/gigs/:gigId/applications"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <GigApplicationsPage />
                   </ProtectedRoute>
                 }
               />
@@ -117,6 +138,16 @@ function App() {
               {/* Profile */}
               <Route
                 path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/profile/:userId"
                 element={
                   <ProtectedRoute>
                     <Navbar />

@@ -3,10 +3,24 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.db.database import get_db
 from app.models.notification import Notification
-from app.schemas.notification import NotificationResponse
+from app.models.notification import NotificationType as ModelNotificationType
+from app.schemas.notification import NotificationResponse, NotificationType as SchemaNotificationType
 from app.core.security import get_current_user
 
 router = APIRouter()
+
+
+_VALID_SCHEMA_TYPES = {member.value for member in SchemaNotificationType}
+
+
+def _to_response_schema(notification: Notification) -> NotificationResponse:
+    raw_type = notification.type
+    if isinstance(raw_type, ModelNotificationType):
+        raw_type = raw_type.value
+    if raw_type not in _VALID_SCHEMA_TYPES:
+        raw_type = SchemaNotificationType.APPLICATION_RECEIVED.value
+    notification.type = raw_type
+    return NotificationResponse.model_validate(notification)
 
 
 @router.get("", response_model=List[NotificationResponse])
@@ -19,7 +33,7 @@ def get_my_notifications(
         Notification.user_id == user_id
     ).order_by(Notification.created_at.desc()).all()
     
-    return [NotificationResponse.model_validate(n) for n in notifications]
+    return [_to_response_schema(n) for n in notifications]
 
 
 @router.get("/unread-count")

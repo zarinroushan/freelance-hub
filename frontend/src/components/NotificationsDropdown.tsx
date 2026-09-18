@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Bell } from 'lucide-react';
+import { API_BASE_URL, getAuthToken } from '../services/api';
 
 interface Notification {
   id: number;
@@ -18,12 +19,13 @@ export function NotificationsDropdown() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
+        const token = getAuthToken();
         const [notifsRes, countRes] = await Promise.all([
-          fetch('/api/notifications', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
+          fetch(`${API_BASE_URL}/notifications`, {
+            headers: { 'Authorization': `Bearer ${token}` },
           }),
-          fetch('/api/notifications/unread-count', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
+          fetch(`${API_BASE_URL}/notifications/unread-count`, {
+            headers: { 'Authorization': `Bearer ${token}` },
           }),
         ]);
 
@@ -46,9 +48,9 @@ export function NotificationsDropdown() {
 
   const markAsRead = async (id: number) => {
     try {
-      await fetch(`/api/notifications/${id}/read`, {
+      await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
         method: 'PATCH',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
+        headers: { 'Authorization': `Bearer ${getAuthToken()}` },
       });
       setNotifications(notifications.map(n => 
         n.id === id ? { ...n, is_read: true } : n

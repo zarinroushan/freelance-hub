@@ -10,9 +10,11 @@
    Global Reset
    =================================== */
 
+/* Tailwind Preflight already zeroes margins/padding inside @layer base,
+   where utilities can override them. This rule must stay layered too,
+   otherwise it silently beats every Tailwind margin/padding utility. */
+
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
@@ -47,24 +49,19 @@ body {
    Typography
    =================================== */
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: var(--font-bold);
-  line-height: var(--leading-tight);
-  color: var(--color-text);
-}
+@layer base {
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: var(--font-bold);
+    line-height: var(--leading-tight);
+    color: var(--color-text);
+  }
 
-/* ===================================
-   Paragraphs
-   =================================== */
-
-p {
-  margin-bottom: var(--space-4);
 }
 
 

@@ -5,6 +5,7 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   transition: all var(--transition);
+  padding: 12px;
 }
 
 /* Padding variants */

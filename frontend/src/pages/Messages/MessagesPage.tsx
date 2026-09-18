@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from '../../components/ui/Card';
+import { useEffect, useState } from 'react';
+import { API_BASE_URL, getAuthToken } from '../../services/api';
+import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
 import { Send, User, Search } from 'lucide-react';
 
 interface Conversation {
@@ -41,9 +41,9 @@ export function MessagesPage() {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const response = await fetch('/api/messages/conversations', {
+        const response = await fetch(`${API_BASE_URL}/messages/conversations`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
+            'Authorization': `Bearer ${getAuthToken()}`,
           },
         });
         
@@ -65,9 +65,9 @@ export function MessagesPage() {
     if (selectedConversation) {
       const fetchMessages = async () => {
         try {
-          const response = await fetch(`/api/messages/conversation/${selectedConversation}`, {
+          const response = await fetch(`${API_BASE_URL}/messages/conversation/${selectedConversation}`, {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
+              'Authorization': `Bearer ${getAuthToken()}`,
             },
           });
           
@@ -89,11 +89,11 @@ export function MessagesPage() {
     if (!newMessage.trim() || !selectedConversation) return;
 
     try {
-      const response = await fetch('/api/messages/send', {
+      const response = await fetch(`${API_BASE_URL}/messages/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
+          'Authorization': `Bearer ${getAuthToken()}`,
         },
         body: JSON.stringify({
           conversation_id: selectedConversation,
@@ -111,30 +111,7 @@ export function MessagesPage() {
     }
   };
 
-  const handleStartConversation = async (userId: number) => {
-    try {
-      const response = await fetch(`/api/messages/start/${userId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}`,
-        },
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        setSelectedConversation(data.conversation_id);
-        // Refresh conversations
-        const convs = await fetch('/api/messages/conversations', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('unigigs_token')}` },
-        });
-        if (convs.ok) {
-          setConversations(await convs.json());
-        }
-      }
-    } catch (error) {
-      console.error('Error starting conversation:', error);
-    }
-  };
 
   if (loading) {
     return (
@@ -262,4 +239,21 @@ export function MessagesPage() {
       </div>
     </div>
   );
+}
+
+export async function startConversation(userId: number) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/messages/start/${userId}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${getAuthToken()}`,
+      },
+    });
+
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (error) {
+    console.error('Error starting conversation:', error);
+  }
 }

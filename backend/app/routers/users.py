@@ -43,7 +43,9 @@ def get_my_profile(current_user: dict = Depends(get_current_user), db: Session =
     
     if not profile:
         # Auto-create profile if doesn't exist
-        profile = Profile(user_id=user_id, availability="available")
+        user = db.query(User).filter(User.id == user_id).first()
+        default_name = user.email.split("@")[0] if user and user.email else f"User {user_id}"
+        profile = Profile(user_id=user_id, full_name=default_name, availability="available")
         db.add(profile)
         db.commit()
         db.refresh(profile)

@@ -10,8 +10,6 @@ from app.models.user import User
 from app.models.saved_gig import SavedGig
 from app.schemas.gig import GigCreate, GigResponse
 from app.core.security import get_current_user
-from typing import List
-from app.models.user import User
 
 router = APIRouter()
 
@@ -91,6 +89,22 @@ def get_categories(
 ):
     categories = db.query(Category).all()
 
+    if not categories:
+        # Auto-seed default categories if database is empty
+        default_categories = [
+            {"name": "Design", "description": "Graphic design, logos, UI/UX", "icon": "🎨"},
+            {"name": "Development", "description": "Web, mobile, software development", "icon": "💻"},
+            {"name": "Writing", "description": "Content writing, copywriting, editing", "icon": "✍️"},
+            {"name": "Video & Audio", "description": "Video editing, music, voiceovers", "icon": "🎬"},
+            {"name": "Marketing", "description": "Social media, SEO, digital marketing", "icon": "📈"},
+            {"name": "Data & Analytics", "description": "Data analysis, Excel, research", "icon": "📊"},
+        ]
+        for cat_data in default_categories:
+            cat = Category(**cat_data)
+            db.add(cat)
+        db.commit()
+        categories = db.query(Category).all()
+
     return [
         {
             "id": category.id,
@@ -117,6 +131,26 @@ def get_skills(
         )
 
     skills = query.all()
+
+    if not skills and not search:
+        default_skills = [
+            ("Logo Design", "Design"),
+            ("Web Design", "Design"),
+            ("Figma", "Design"),
+            ("React", "Development"),
+            ("Python", "Development"),
+            ("Node.js", "Development"),
+            ("Content Writing", "Writing"),
+            ("Copywriting", "Writing"),
+            ("Video Editing", "Video & Audio"),
+            ("Social Media Marketing", "Marketing"),
+            ("Data Analysis", "Data & Analytics"),
+        ]
+        for name, cat in default_skills:
+            s = Skill(name=name, category=cat)
+            db.add(s)
+        db.commit()
+        skills = query.all()
 
     return [
         {
@@ -150,8 +184,10 @@ def get_my_gigs(
             detail="User not found"
         )
 
+    user_role = user.role.value if hasattr(user.role, "value") else str(user.role)
+
     # Client sees only their posted gigs
-    if user.role.value == "client":
+    if user_role == "client":
         gigs = db.query(Gig).filter(
             Gig.client_id == user_id
         ).order_by(
@@ -215,11 +251,21 @@ def create_gig(
             detail="User not found"
         )
 
+    user_role = user.role.value if hasattr(user.role, "value") else str(user.role)
+
     # Only clients can post gigs
-    if user.role.value != "client":
+    if user_role != "client":
         raise HTTPException(
             status_code=403,
             detail="Only clients can post gigs"
+        )
+
+    # Verify category exists
+    category = db.query(Category).filter(Category.id == gig_data.category_id).first()
+    if not category:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Category with ID {gig_data.category_id} does not exist. Please select a valid category."
         )
 
     # Create new gig
@@ -371,21 +417,3 @@ def save_gig(
     return {
         "message": "Gig saved successfully"
     }
-
-# GET my gigs (for client to see their posted gigs)
-@router.get("/my-gigs", response_model=List[GigResponse])
-def get_my_gigs(
-    current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    user_id = int(current_user["user_id"])
-    user = db.query(User).filter(User.id == user_id).first()
-    
-    if user.role.value == "client":
-        # Client sees their posted gigs
-        gigs = db.query(Gig).filter(Gig.client_id == user_id).all()
-    else:
-        # Student sees all open gigs
-        gigs = db.query(Gig).filter(Gig.status == GigStatus.OPEN).all()
-    
-    return [GigResponse.model_validate(gig) for gig in gigs]
