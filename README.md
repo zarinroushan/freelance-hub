@@ -1,4 +1,3 @@
-````markdown
 # 🌸 UniGigs — Student Freelance & Gig Marketplace
 
 UniGigs is a student-focused freelance marketplace that connects students offering skills and services with clients looking for affordable solutions.
