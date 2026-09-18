@@ -107,7 +107,7 @@ export function DashboardPage() {
             <Link to="/gigs" className="mt-6 md:mt-0">
               <Button size="md">
                 <Briefcase className="w-5 h-5 mr-2" />
-                Find Gigs
+                Apply a Gig
               </Button>
             </Link>
           ) : (

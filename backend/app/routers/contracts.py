@@ -7,6 +7,7 @@ from app.models.contract import Contract, ContractStatus, ContractDeliverable
 from app.models.payment import Payment, PaymentStatus
 from app.models.notification import Notification, NotificationType
 from app.core.security import get_current_user
+from app.models.review import Review
 
 router = APIRouter()
 
@@ -17,7 +18,20 @@ def get_my_contracts(current_user: dict = Depends(get_current_user), db: Session
     contracts = db.query(Contract).filter(
         (Contract.client_id == user_id) | (Contract.freelancer_id == user_id)
     ).order_by(Contract.created_at.desc()).all()
-    return [c.__dict__ for c in contracts]
+    result = []
+    for contract in contracts:
+        item = {
+            key: value
+            for key, value in contract.__dict__.items()
+            if key != "_sa_instance_state"
+        }
+        review = db.query(Review).filter(
+            Review.contract_id == contract.id,
+            Review.reviewer_id == user_id,
+        ).first()
+        item["reviewed_by_me"] = review is not None
+        result.append(item)
+    return result
 
 
 @router.post("/{contract_id}/deliver")

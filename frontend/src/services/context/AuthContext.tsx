@@ -14,6 +14,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogleCode: (code: string) => Promise<void>;
   register: (
     email: string,
     password: string,
@@ -149,6 +150,24 @@ export function AuthProvider({
     setUser(authData.user);
   };
 
+  const loginWithGoogleCode = async (code: string): Promise<void> => {
+    const response = await fetch(`${API_URL}/google/exchange`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || 'Google sign-in failed.');
+    }
+
+    const authData = data as AuthResponse;
+    localStorage.setItem(TOKEN_STORAGE_KEY, authData.access_token);
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(authData.user));
+    setUser(authData.user);
+  };
+
   // LOGOUT
   const logout = (): void => {
     localStorage.removeItem(USER_STORAGE_KEY);
@@ -163,6 +182,7 @@ export function AuthProvider({
         user,
         loading,
         login,
+        loginWithGoogleCode,
         register,
         logout,
         isAuthenticated: !!user,

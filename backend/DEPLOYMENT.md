@@ -57,6 +57,17 @@ Under the **Environment** tab of your Web Service, add the following key-value p
 | `REFRESH_TOKEN_EXPIRE_DAYS` | `7` | Refresh token expiry |
 | `CORS_ORIGINS` | `https://your-frontend.onrender.app,http://localhost:5173` | Comma-separated allowed origin URLs (or `*`) |
 | `APP_ENV` | `production` | Set environment mode |
+| `FRONTEND_URL` | `https://your-frontend.vercel.app` | Frontend URL used after OAuth |
+| `GOOGLE_CLIENT_ID` | (from Google Cloud) | OAuth client ID; keep out of source files |
+| `GOOGLE_CLIENT_SECRET` | (from Google Cloud) | OAuth client secret; backend only |
+| `GOOGLE_REDIRECT_URI` | `https://your-backend.onrender.com/api/auth/google/callback` | Must exactly match the Google OAuth client |
+
+### Google Sign-In local setup
+
+1. In Google Cloud Console, create an OAuth 2.0 Web application client.
+2. Add `http://localhost:8000/api/auth/google/callback` as an authorized redirect URI.
+3. In `backend/.env`, set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and (optionally) `GOOGLE_REDIRECT_URI` to that local callback. Set `FRONTEND_URL=http://localhost:5173`.
+4. For deployment, set the same variables in the Render service, using the deployed backend callback URL and the deployed frontend URL. Never add the client secret to Vite variables or commit it.
 
 ---
 

@@ -21,6 +21,14 @@ services:
         value: "*"
       - key: APP_ENV
         value: production
+      - key: FRONTEND_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false
 
 databases:
   - name: unigigs-db

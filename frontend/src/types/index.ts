@@ -62,6 +62,7 @@ export interface Contract {
   agreed_budget: number;
   status: 'pending' | 'active' | 'submitted' | 'completed' | 'cancelled';
   created_at: string;
+  reviewed_by_me?: boolean;
 }
 
 export interface Category {
