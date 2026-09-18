@@ -46,8 +46,11 @@
 }
 
 .navbar__logo-icon {
-  color: var(--color-primary);
-  font-size: var(--text-xl);
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
 }
 
 .navbar__logo-text {
