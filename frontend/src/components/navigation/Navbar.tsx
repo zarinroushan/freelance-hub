@@ -163,7 +163,11 @@ export const Navbar: React.FC = () => {
 
         {/* Logo */}
         <Link to="/" className="navbar__logo">
-          <span className="navbar__logo-icon">✦</span>
+          <img
+            src="/favicon.png"
+            alt="UniGigs"
+            className="navbar__logo-icon"
+          />
           <span className="navbar__logo-text">UniGigs</span>
         </Link>
 
