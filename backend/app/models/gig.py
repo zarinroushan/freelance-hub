@@ -62,6 +62,7 @@ class GigAttachment(Base):
     file_name = Column(String, nullable=False)
     file_type = Column(String)
     file_size = Column(Integer)
+    description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     gig = relationship("Gig", back_populates="attachments")

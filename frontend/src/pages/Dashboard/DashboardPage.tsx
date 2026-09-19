@@ -91,15 +91,15 @@ export function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-6 py-6 sm:py-8">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
-            <h1 className="text-5xl font-bold text-[var(--color-text)] mb-2">
+            <h1 className="text-3xl sm:text-4xl font-bold text-[var(--color-text)] mb-2">
               Welcome back! 👋
             </h1>
-            <p className="text-lg text-[var(--color-text-secondary)]">
+            <p className="text-base text-[var(--color-text-secondary)]">
               {isStudent ? "Find your next opportunity and grow your skills" : "Manage your gigs and hire talented students"}
             </p>
           </div>
@@ -281,24 +281,55 @@ export function DashboardPage() {
               <h3 className="text-xl font-bold text-[var(--color-text)]">Quick Links</h3>
             </CardHeader>
             <CardContent className="p-6 space-y-3">
-              <Link to="/gigs" className="block">
-                <Button variant="secondary" fullWidth size="md">
-                  <Briefcase className="w-5 h-5 mr-2" />
-                  Browse Gigs
-                </Button>
-              </Link>
-              <Link to="/applications" className="block">
-                <Button variant="secondary" fullWidth size="md">
-                  <FileText className="w-5 h-5 mr-2" />
-                  My Applications
-                </Button>
-              </Link>
-              <Link to="/messages" className="block">
-                <Button variant="secondary" fullWidth size="md">
-                  <MessageSquare className="w-5 h-5 mr-2" />
-                  Messages
-                </Button>
-              </Link>
+              {isStudent ? (
+                <>
+                  <Link to="/gigs" className="block">
+                    <Button variant="secondary" fullWidth size="md">
+                      <Briefcase className="w-5 h-5 mr-2" />
+                      Explore Gigs
+                    </Button>
+                  </Link>
+                  <Link to="/contracts" className="block">
+                    <Button variant="secondary" fullWidth size="md">
+                      <FileText className="w-5 h-5 mr-2" />
+                      Contracts
+                    </Button>
+                  </Link>
+                  <Link to="/applications" className="block">
+                    <Button variant="secondary" fullWidth size="md">
+                      <FileText className="w-5 h-5 mr-2" />
+                      My Applications
+                    </Button>
+                  </Link>
+                  <Link to="/messages" className="block">
+                    <Button variant="secondary" fullWidth size="md">
+                      <MessageSquare className="w-5 h-5 mr-2" />
+                      Messages
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/gigs/new" className="block">
+                    <Button variant="secondary" fullWidth size="md">
+                      <Plus className="w-5 h-5 mr-2" />
+                      Post a Gig
+                    </Button>
+                  </Link>
+                  <Link to="/contracts" className="block">
+                    <Button variant="secondary" fullWidth size="md">
+                      <FileText className="w-5 h-5 mr-2" />
+                      Contracts
+                    </Button>
+                  </Link>
+                  <Link to="/messages" className="block">
+                    <Button variant="secondary" fullWidth size="md">
+                      <MessageSquare className="w-5 h-5 mr-2" />
+                      Messages
+                    </Button>
+                  </Link>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -309,20 +340,36 @@ export function DashboardPage() {
                 <h3 className="text-xl font-bold text-[var(--color-text)]">
                   {isStudent ? "Recently Posted Gigs" : "Your Recent Gigs"}
                 </h3>
-                <Link to="/gigs">
-                  <Button variant="ghost" size="sm">
-                    View All →
-                  </Button>
-                </Link>
+                {isStudent ? (
+                  <Link to="/gigs">
+                    <Button variant="ghost" size="sm">
+                      View All →
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to="/gigs/new">
+                    <Button variant="ghost" size="sm">
+                      Post New Gig +
+                    </Button>
+                  </Link>
+                )}
               </div>
             </CardHeader>
             <CardContent className="p-6">
               {recentGigs.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-[var(--color-text-muted)] mb-4">No gigs found</p>
-                  <Link to="/gigs">
-                    <Button size="md">Browse Gigs</Button>
-                  </Link>
+                  <p className="text-[var(--color-text-muted)] mb-4">
+                    {isStudent ? "No open gigs found" : "You haven't posted any gigs yet"}
+                  </p>
+                  {isStudent ? (
+                    <Link to="/gigs">
+                      <Button size="md">Explore Gigs</Button>
+                    </Link>
+                  ) : (
+                    <Link to="/gigs/new">
+                      <Button size="md">Post a Gig</Button>
+                    </Link>
+                  )}
                 </div>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">

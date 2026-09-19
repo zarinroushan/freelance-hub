@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './services/context/ThemeContext';
 import { AuthProvider } from './services/context/AuthContext';
 
-import { Navbar } from './components/navigation/Navbar';
+import { LandingNavbar, AppNavbar } from './components/navigation/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 import { HomePage } from './pages/home/homepage';
@@ -21,6 +21,18 @@ import { ContractsPage } from './pages/Contracts/ContractsPage';
 import { SettingsPage } from './pages/Settings/SettingsPage';
 import { GoogleCallbackPage } from './pages/login/GoogleCallbackPage';
 
+/** Offsets inner-page content below the fixed navbar height (72px). */
+function NavbarPage({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <AppNavbar />
+      <div style={{ paddingTop: 'var(--navbar-height)' }}>
+        {children}
+      </div>
+    </>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -33,12 +45,12 @@ function App() {
                   PUBLIC ROUTES
               ========================== */}
 
-              {/* Home */}
+              {/* Home — LandingNavbar floats over full-screen hero; no padding-top needed */}
               <Route
                 path="/"
                 element={
                   <>
-                    <Navbar />
+                    <LandingNavbar />
                     <HomePage />
                   </>
                 }
@@ -62,10 +74,9 @@ function App() {
               <Route
                 path="/gigs"
                 element={
-                  <>
-                    <Navbar />
+                  <NavbarPage>
                     <GigsPage />
-                  </>
+                  </NavbarPage>
                 }
               />
 
@@ -73,10 +84,9 @@ function App() {
               <Route
                 path="/gigs/:id"
                 element={
-                  <>
-                    <Navbar />
+                  <NavbarPage>
                     <GigDetailPage />
-                  </>
+                  </NavbarPage>
                 }
               />
 
@@ -89,8 +99,9 @@ function App() {
                 path="/dashboard"
                 element={
                   <ProtectedRoute>
-                    <Navbar />
-                    <DashboardPage />
+                    <NavbarPage>
+                      <DashboardPage />
+                    </NavbarPage>
                   </ProtectedRoute>
                 }
               />
@@ -100,8 +111,9 @@ function App() {
                 path="/applications"
                 element={
                   <ProtectedRoute>
-                    <Navbar />
-                    <ApplicationsPage />
+                    <NavbarPage>
+                      <ApplicationsPage />
+                    </NavbarPage>
                   </ProtectedRoute>
                 }
               />
@@ -111,8 +123,9 @@ function App() {
                 path="/applications/:gigId"
                 element={
                   <ProtectedRoute>
-                    <Navbar />
-                    <GigApplicationsPage />
+                    <NavbarPage>
+                      <GigApplicationsPage />
+                    </NavbarPage>
                   </ProtectedRoute>
                 }
               />
@@ -121,8 +134,9 @@ function App() {
                 path="/gigs/:gigId/applications"
                 element={
                   <ProtectedRoute>
-                    <Navbar />
-                    <GigApplicationsPage />
+                    <NavbarPage>
+                      <GigApplicationsPage />
+                    </NavbarPage>
                   </ProtectedRoute>
                 }
               />
@@ -132,8 +146,9 @@ function App() {
                 path="/gigs/new"
                 element={
                   <ProtectedRoute role="client">
-                    <Navbar />
-                    <PostGigPage />
+                    <NavbarPage>
+                      <PostGigPage />
+                    </NavbarPage>
                   </ProtectedRoute>
                 }
               />
@@ -143,8 +158,9 @@ function App() {
                 path="/profile"
                 element={
                   <ProtectedRoute>
-                    <Navbar />
-                    <ProfilePage />
+                    <NavbarPage>
+                      <ProfilePage />
+                    </NavbarPage>
                   </ProtectedRoute>
                 }
               />
@@ -153,8 +169,9 @@ function App() {
                 path="/profile/:userId"
                 element={
                   <ProtectedRoute>
-                    <Navbar />
-                    <ProfilePage />
+                    <NavbarPage>
+                      <ProfilePage />
+                    </NavbarPage>
                   </ProtectedRoute>
                 }
               />
@@ -164,8 +181,9 @@ function App() {
                 path="/messages"
                 element={
                   <ProtectedRoute>
-                    <Navbar />
-                    <MessagesPage />
+                    <NavbarPage>
+                      <MessagesPage />
+                    </NavbarPage>
                   </ProtectedRoute>
                 }
               />
@@ -175,8 +193,9 @@ function App() {
                 path="/contracts"
                 element={
                   <ProtectedRoute>
-                    <Navbar />
-                    <ContractsPage />
+                    <NavbarPage>
+                      <ContractsPage />
+                    </NavbarPage>
                   </ProtectedRoute>
                 }
               />
@@ -186,8 +205,9 @@ function App() {
                 path="/settings"
                 element={
                   <ProtectedRoute>
-                    <Navbar />
-                    <SettingsPage />
+                    <NavbarPage>
+                      <SettingsPage />
+                    </NavbarPage>
                   </ProtectedRoute>
                 }
               />
@@ -201,3 +221,4 @@ function App() {
 }
 
 export default App;
+

@@ -7,7 +7,7 @@ import type { Gig } from '../../types';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { ArrowLeft, Clock, User, CheckCircle, Eye } from 'lucide-react';
+import { ArrowLeft, Clock, User, CheckCircle, Eye, FileText, Link as LinkIcon, Download } from 'lucide-react';
 
 export function GigDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -98,7 +98,7 @@ export function GigDetailPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-6 py-6 sm:py-8">
         
         {/* Back Button */}
         <Link to="/gigs" className="inline-flex items-center text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] font-medium mb-8 transition-colors">
@@ -166,6 +166,57 @@ export function GigDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-base leading-relaxed text-[var(--color-text)]">{gig.deliverables}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Attachments & Reference Links */}
+            {gig.attachments && gig.attachments.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <h2 className="text-xl font-bold text-[var(--color-text)] flex items-center gap-2">
+                    <FileText size={20} className="text-[var(--color-primary)]" />
+                    Relevant Attachments & Links
+                  </h2>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {gig.attachments.map((att) => {
+                      const isLink = att.file_type === 'link';
+                      return (
+                        <div
+                          key={att.id || att.file_url}
+                          className="p-4 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] space-y-2 hover:border-[var(--color-primary)] transition-colors"
+                        >
+                          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider">
+                            {isLink ? (
+                              <>
+                                <LinkIcon size={14} /> Link
+                              </>
+                            ) : (
+                              <>
+                                <FileText size={14} /> Attached File
+                              </>
+                            )}
+                          </div>
+                          {att.description && (
+                            <p className="text-sm font-medium text-[var(--color-text)]">
+                              {att.description}
+                            </p>
+                          )}
+                          <a
+                            href={att.file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--color-primary)] hover:underline break-all"
+                          >
+                            {isLink ? att.file_url : (att.file_name || 'View Attachment')}
+                            <Download size={13} />
+                          </a>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </CardContent>
               </Card>
             )}

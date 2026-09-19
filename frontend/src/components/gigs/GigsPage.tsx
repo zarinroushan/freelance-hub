@@ -78,18 +78,18 @@ export function GigsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-6 py-6 sm:py-8">
         
         {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-5xl font-bold text-[var(--color-text)] mb-3">Find Gigs</h1>
-          <p className="text-lg text-[var(--color-text-secondary)]">
+        <div className="mb-6">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--color-text)] mb-2">Explore Gigs</h1>
+          <p className="text-base text-[var(--color-text-secondary)]">
             Discover freelance opportunities from fellow students
           </p>
         </div>
 
         {/* Search & Filters */}
-        <div className="mb-12 space-y-4">
+        <div className="mb-8 space-y-4">
           {/* Search Bar */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">

@@ -179,10 +179,10 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     # Create associated profile
-    default_name = email.split("@")[0]
+    full_name = user_data.full_name.strip() if user_data.full_name and user_data.full_name.strip() else email.split("@")[0].replace(".", " ").title()
     profile = Profile(
         user_id=new_user.id,
-        full_name=default_name,
+        full_name=full_name,
         availability="available"
     )
     db.add(profile)

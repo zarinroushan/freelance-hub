@@ -65,6 +65,7 @@ def get_my_applications(current_user: dict = Depends(get_current_user), db: Sess
     if user.role == UserRole.CLIENT:
         apps = (
             db.query(Application)
+            .options(joinedload(Application.gig))
             .join(Gig, Application.gig_id == Gig.id)
             .filter(Gig.client_id == user_id)
             .order_by(Application.created_at.desc())
@@ -74,6 +75,7 @@ def get_my_applications(current_user: dict = Depends(get_current_user), db: Sess
 
     apps = (
         db.query(Application)
+        .options(joinedload(Application.gig))
         .filter(
             Application.freelancer_id == user_id,
         )

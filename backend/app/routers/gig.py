@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from app.db.database import get_db
-from app.models.gig import Gig, GigStatus, GigSkill
+from app.models.gig import Gig, GigStatus, GigSkill, GigAttachment
 from app.models.category import Category
 from app.models.skill import Skill
 from app.models.user import User
@@ -271,7 +271,7 @@ def create_gig(
     # Create new gig
     new_gig = Gig(
         **gig_data.model_dump(
-            exclude={"skill_ids"}
+            exclude={"skill_ids", "attachments"}
         ),
         client_id=user_id,
         status=GigStatus.OPEN
@@ -284,8 +284,6 @@ def create_gig(
     # Add skills
     if gig_data.skill_ids:
         for skill_id in gig_data.skill_ids:
-
-            # Check if skill exists
             skill = db.query(Skill).filter(
                 Skill.id == skill_id
             ).first()
@@ -295,9 +293,20 @@ def create_gig(
                     gig_id=new_gig.id,
                     skill_id=skill_id
                 )
-
                 db.add(gig_skill)
+        db.commit()
 
+    # Add attachments & links
+    if gig_data.attachments:
+        for att in gig_data.attachments:
+            attachment_obj = GigAttachment(
+                gig_id=new_gig.id,
+                file_url=att.file_url,
+                file_name=att.file_name,
+                description=att.description,
+                file_type=att.file_type or "file",
+            )
+            db.add(attachment_obj)
         db.commit()
 
     db.refresh(new_gig)

@@ -112,17 +112,17 @@ export function ApplicationsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-6 py-6 sm:py-8">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
-            <h1 className="text-5xl font-bold text-[var(--color-text)] mb-3">My Applications</h1>
-            <p className="text-lg text-[var(--color-text-secondary)]">
+            <h1 className="text-3xl sm:text-4xl font-bold text-[var(--color-text)] mb-2">My Applications</h1>
+            <p className="text-base text-[var(--color-text-secondary)]">
               Track and manage your gig applications ({displayCount} total)
             </p>
           </div>
-          <Link to="/gigs" className="mt-6 md:mt-0">
+          <Link to="/gigs" className="mt-4 md:mt-0">
             <Button size="md">
               Browse More Gigs
             </Button>
@@ -241,9 +241,9 @@ export function ApplicationsPage() {
                           <p className="font-semibold text-[var(--color-primary)]">₹{app.proposed_price}</p>
                         </div>
                         <div>
-                          <p className="text-[var(--color-text-muted)] mb-1">Budget</p>
+                          <p className="text-[var(--color-text-muted)] mb-1">Gig Budget</p>
                           <p className="font-semibold text-[var(--color-text)]">
-                            ₹{app.gig?.budget || '-'}
+                            {app.gig?.budget !== undefined && app.gig?.budget !== null ? `₹${app.gig.budget}` : '—'}
                           </p>
                         </div>
                         <div>
@@ -254,14 +254,18 @@ export function ApplicationsPage() {
                         </div>
                         <div>
                           <p className="text-[var(--color-text-muted)] mb-1">Difference</p>
-                          <p className={`font-semibold ${
-                            (app.gig?.budget ?? 0) - app.proposed_price >= 0
-                              ? 'text-[var(--color-success)]'
-                              : 'text-[var(--color-error)]'
-                          }`}>
-                            ₹{((app.gig?.budget ?? 0) - app.proposed_price) > 0 ? '+' : ''}
-                            {(app.gig?.budget ?? 0) - app.proposed_price}
-                          </p>
+                          {app.gig?.budget !== undefined && app.gig?.budget !== null ? (
+                            <p className={`font-semibold ${
+                              app.gig.budget - app.proposed_price >= 0
+                                ? 'text-[var(--color-success)]'
+                                : 'text-[var(--color-error)]'
+                            }`}>
+                              {app.gig.budget - app.proposed_price > 0 ? '+' : ''}
+                              ₹{app.gig.budget - app.proposed_price}
+                            </p>
+                          ) : (
+                            <p className="font-semibold text-[var(--color-text-muted)]">—</p>
+                          )}
                         </div>
                       </div>
                     </div>

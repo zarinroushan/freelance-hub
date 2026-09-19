@@ -6,25 +6,7 @@ Run this to populate your database with demo data
 
 from sqlalchemy.orm import Session
 
-from app.db.database import SessionLocal, engine, Base
-
-from app.models.user import User, UserRole, Profile
-from app.models.gig import Gig, GigStatus
-from app.models.category import Category
-from app.models.skill import Skill
-from app.models.application import Application, ApplicationStatus
-from app.models.contract import Contract, ContractStatus
-
-from app.core.security import get_password_hash
-
-from datetime import datetime, timedelta
-import random
-from app.models.notification import Notification
-from app.models.saved_gig import SavedGig
-from app.models.portfolio import PortfolioItem
-from app.models.message import Message
-# Create tables
-Base.metadata.create_all(bind=engine)
+from app.db.database import SessionLocal
 
 db = SessionLocal()
 

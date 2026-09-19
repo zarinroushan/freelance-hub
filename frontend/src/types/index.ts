@@ -21,6 +21,15 @@ export interface Profile {
   skills_summary?: string;
 }
 
+export interface GigAttachment {
+  id?: number;
+  file_url: string;
+  file_name: string;
+  description?: string;
+  file_type?: string;
+  created_at?: string;
+}
+
 export interface Gig {
   id: number;
   title: string;
@@ -34,6 +43,7 @@ export interface Gig {
   created_at: string;
   requirements: string;
   deliverables: string;
+  attachments?: GigAttachment[];
 }
 
 export interface Application {

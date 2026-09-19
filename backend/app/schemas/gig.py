@@ -12,6 +12,25 @@ class GigStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
+class AttachmentCreate(BaseModel):
+    file_url: str
+    file_name: str
+    description: Optional[str] = None
+    file_type: Optional[str] = "file"
+
+
+class AttachmentResponse(BaseModel):
+    id: int
+    file_url: str
+    file_name: str
+    description: Optional[str] = None
+    file_type: Optional[str] = None
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
 class GigCreate(BaseModel):
     title: str = Field(..., min_length=5, max_length=200)
     description: str = Field(..., min_length=20, max_length=5000)
@@ -21,6 +40,7 @@ class GigCreate(BaseModel):
     requirements: Optional[str] = None
     deliverables: Optional[str] = None
     skill_ids: Optional[List[int]] = []
+    attachments: Optional[List[AttachmentCreate]] = []
 
 
 class GigUpdate(BaseModel):
@@ -45,6 +65,7 @@ class GigResponse(BaseModel):
     deliverables: Optional[str] = None
     application_count: int = 0
     created_at: datetime
+    attachments: Optional[List[AttachmentResponse]] = []
     
     class Config:
         from_attributes = True

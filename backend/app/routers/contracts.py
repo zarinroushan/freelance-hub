@@ -1,3 +1,4 @@
+import json
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -18,6 +19,22 @@ class RevisionRequest(BaseModel):
     feedback: str = Field(..., min_length=1, max_length=2000)
 
 
+def _parse_file_urls(urls_val):
+    if not urls_val:
+        return []
+    if isinstance(urls_val, list):
+        return urls_val
+    if isinstance(urls_val, str):
+        try:
+            parsed = json.loads(urls_val)
+            if isinstance(parsed, list):
+                return parsed
+            return [parsed]
+        except Exception:
+            return [urls_val] if urls_val.strip() else []
+    return []
+
+
 @router.get("", response_model=List[dict])
 def get_my_contracts(current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
     user_id = int(current_user["user_id"])
@@ -36,6 +53,22 @@ def get_my_contracts(current_user: dict = Depends(get_current_user), db: Session
             Review.reviewer_id == user_id,
         ).first()
         item["reviewed_by_me"] = review is not None
+
+        # Fetch deliverables/submissions for this contract
+        deliverables = db.query(ContractDeliverable).filter(
+            ContractDeliverable.contract_id == contract.id
+        ).order_by(ContractDeliverable.submitted_at.desc()).all()
+
+        item["deliverables"] = [
+            {
+                "id": d.id,
+                "description": d.description,
+                "file_urls": _parse_file_urls(d.file_urls),
+                "submission_message": d.submission_message,
+                "submitted_at": d.submitted_at.isoformat() if d.submitted_at else None,
+            }
+            for d in deliverables
+        ]
         result.append(item)
     return result
 
@@ -48,14 +81,24 @@ def submit_deliverable(contract_id: int, data: dict, current_user: dict = Depend
         raise HTTPException(status_code=403, detail="Not authorized")
     if contract.status not in (ContractStatus.ACTIVE, ContractStatus.REVISION_REQUESTED):
         raise HTTPException(status_code=409, detail="This contract is not accepting deliverables")
-    if not data.get("description"):
+    
+    description = data.get("description") or data.get("submission_message")
+    if not description or not str(description).strip():
         raise HTTPException(status_code=422, detail="A delivery description is required")
     
+    file_urls_input = data.get("file_urls")
+    if isinstance(file_urls_input, list):
+        file_urls_str = json.dumps(file_urls_input)
+    elif isinstance(file_urls_input, str) and file_urls_input.strip():
+        file_urls_str = json.dumps([file_urls_input.strip()])
+    else:
+        file_urls_str = None
+
     deliverable = ContractDeliverable(
         contract_id=contract_id,
-        description=data.get("description", ""),
-        file_urls=data.get("file_urls"),
-        submission_message=data.get("submission_message"),
+        description=str(description).strip(),
+        file_urls=file_urls_str,
+        submission_message=data.get("submission_message") or str(description).strip(),
         is_submitted=True,
         submitted_at=datetime.utcnow(),
     )

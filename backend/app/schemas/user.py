@@ -13,6 +13,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
     role: UserRole
+    full_name: Optional[str] = None
 
 
 class UserLogin(BaseModel):
@@ -36,6 +37,10 @@ class ProfileCreate(BaseModel):
     bio: Optional[str] = None
     university: Optional[str] = None
     avatar_url: Optional[str] = None
+    resume_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
+    github_url: Optional[str] = None
+    linkedin_url: Optional[str] = None
 
 
 class ProfileUpdate(BaseModel):
@@ -43,6 +48,10 @@ class ProfileUpdate(BaseModel):
     bio: Optional[str] = None
     university: Optional[str] = None
     avatar_url: Optional[str] = None
+    resume_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
+    github_url: Optional[str] = None
+    linkedin_url: Optional[str] = None
     availability: Optional[str] = None
     skills_summary: Optional[str] = None
 
@@ -54,6 +63,10 @@ class ProfileResponse(BaseModel):
     bio: Optional[str] = None
     university: Optional[str] = None
     avatar_url: Optional[str] = None
+    resume_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
+    github_url: Optional[str] = None
+    linkedin_url: Optional[str] = None
     availability: str = "available"
     skills_summary: Optional[str] = None
     completed_gigs_count: int = 0
