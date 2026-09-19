@@ -26,6 +26,10 @@ def _frontend_redirect(path: str, **params: str) -> RedirectResponse:
     return RedirectResponse(f"{target}?{query}" if query else target)
 
 
+class GoogleExchangeRequest(BaseModel):
+    code: str
+
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
@@ -131,8 +135,8 @@ def google_callback(
 
 
 @router.post("/google/exchange", response_model=TokenResponse)
-def exchange_google_code(code: str, db: Session = Depends(get_db)):
-    payload = verify_token(code)
+def exchange_google_code(request: GoogleExchangeRequest, db: Session = Depends(get_db)):
+    payload = verify_token(request.code)
     if not payload or payload.get("purpose") != "google_handoff":
         raise HTTPException(status_code=400, detail="Invalid or expired Google sign-in code")
 
