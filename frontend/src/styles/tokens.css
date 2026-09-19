@@ -1,7 +1,7 @@
 /* ===================================
    UNIGIGS DESIGN TOKENS
    Professional Student Freelance Platform
-   Blue + Yellow Theme
+   Soft Pastel Blue + Cherry-Blossom Theme
 =================================== */
 
 :root {
@@ -10,10 +10,15 @@
      BRAND COLORS
   =================================== */
 
-  --color-primary: #2563EB;
-  --color-primary-hover: #1D4ED8;
-  --color-primary-dark: #1E40AF;
-  --color-primary-light: #EFF6FF;
+  /* Soft cornflower/periwinkle blue — harmonizes with cherry-blossom pinks */
+  --color-primary: #6B8DD6;
+  --color-primary-hover: #5577C8;
+  --color-primary-dark: #4A67B8;
+  --color-primary-light: #EEF2FF;
+
+  /* Hero-specific pastel blue for subtle tints */
+  --color-primary-hero: #7B9FE0;
+  --color-primary-hero-tint: rgba(107, 141, 214, 0.12);
 
   --color-navy: #0F172A;
   --color-navy-light: #1E293B;
@@ -78,8 +83,8 @@
   --color-warning: #F59E0B;
   --color-warning-bg: #FEF3C7;
 
-  --color-info: #2563EB;
-  --color-info-bg: #DBEAFE;
+  --color-info: #6B8DD6;
+  --color-info-bg: #EEF2FF;
 
 
   /* ===================================
@@ -501,4 +506,15 @@ a:hover {
 
   outline-offset: 3px;
 
+}
+
+
+/* ===================================
+   FIXED NAVBAR OFFSET
+   Use on any page that has a Navbar + content below it.
+   The home hero intentionally overlaps the navbar.
+=================================== */
+
+.page-with-navbar {
+  padding-top: var(--navbar-height);
 }

@@ -6,8 +6,8 @@ from fastapi.responses import JSONResponse
 
 
 from app.core.config import settings
-from app.db.database import Base, engine
-import app.models  # noqa: F401  – registers every table with Base.metadata
+from app.db.database import Base
+import app.models  # noqa: F401
 
 logger = logging.getLogger("unigigs")
 
@@ -20,7 +20,8 @@ from app.routers import (
     contracts,
     messages,
     reviews,
-    notifications,  # ✅ ADDED
+    notifications,
+    upload,
 )
 
 app = FastAPI(
@@ -52,18 +53,18 @@ app.add_middleware(
 
 
 
-# ── Create tables if they don't exist (safety net for deployments) ──
-try:
-    Base.metadata.create_all(bind=engine)
-except Exception:
-    logger.exception("Failed to auto-create database tables on startup")
-
-
 # Include routers
 app.include_router(
     auth.router,
     prefix="/api/auth",
     tags=["Authentication"]
+)
+
+# Compatibility alias for direct non-/api requests
+app.include_router(
+    auth.router,
+    prefix="/auth",
+    include_in_schema=False
 )
 
 
@@ -112,7 +113,14 @@ app.include_router(
 app.include_router(
     notifications.router,
     prefix="/api/notifications",
-    tags=["Notifications"]  # ✅ ADDED
+    tags=["Notifications"]
+)
+
+
+app.include_router(
+    upload.router,
+    prefix="/api/upload",
+    tags=["Uploads"]
 )
 
 

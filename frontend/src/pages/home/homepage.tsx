@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
+import { useAuth } from '../../services/context/AuthContext';
 import {
   ArrowRight,
   Users,
@@ -10,6 +11,14 @@ import {
 import { Button } from '../../components/ui/Button';
 
 export function HomePage() {
+  const { user, isAuthenticated, loading } = useAuth();
+
+  if (!loading && isAuthenticated && user) {
+    if (user.role === 'student') {
+      return <Navigate to="/gigs" replace />;
+    }
+    return <Navigate to="/dashboard" replace />;
+  }
   const features = [
     {
       icon: (
@@ -88,90 +97,309 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] overflow-hidden">
+{/* =========================
+    HERO SECTION — Full-screen cinematic
+========================== */}
 
-      {/* =========================
-          HERO SECTION
-      ========================== */}
+<section
+  style={{
+    position: 'relative',
+    width: '100%',
+    height: '100vh',
+    minHeight: '600px',
+    maxHeight: '900px',
+    overflow: 'hidden',
+  }}
+>
+  {/* Background image */}
+  <img
+    src="/hero-background.png"
+    alt="Students working together"
+    style={{
+      position: 'absolute',
+      inset: 0,
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      objectPosition: 'center top',
+      zIndex: 0,
+    }}
+  />
 
-      <section className="flex justify-center bg-[var(--color-background-alt)] ">
-        <div className="max-w-5xl px-4 sm:px-6 lg:px-8 pt-12 pb-10 sm:pt-16 sm:pb-14 md:pt-20 md:pb-20 lg:pt-24">
+  {/* Soft atmospheric top veil */}
+  <div
+    aria-hidden="true"
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '220px',
+      background:
+        'linear-gradient(to bottom, rgba(145, 66, 116, 0.44) 0%, rgba(240,234,250,0.14) 55%, transparent 100%)',
+      backdropFilter: 'blur(2px)',
+      WebkitBackdropFilter: 'blur(2px)',
+      maskImage:
+        'linear-gradient(to bottom, black 0%, black 28%, transparent 100%)',
+      WebkitMaskImage:
+        'linear-gradient(to bottom, black 0%, black 28%, transparent 100%)',
+      zIndex: 1,
+      pointerEvents: 'none',
+    }}
+  />
 
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+{/* =========================
+    BOTTOM-RIGHT HERO CONTENT
+========================== */}
 
-            {/* LEFT CONTENT */}
+<div
+  style={{
+    position: 'absolute',
+    right: '3.5rem',
+    bottom: '3.5rem',
 
-            <div className="max-w-xl">
+    width: 'min(500px, 38vw)',
 
-              <div className="inline-flex items-center px-3 py-1 mb-5 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] text-sm font-medium">
-                Built by students, for students
-              </div>
+    zIndex: 2,
+  }}
+>
+  {/* Broad atmospheric fade for readability */}
+  <div
+    aria-hidden="true"
+    style={{
+      position: 'absolute',
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[var(--color-text)] leading-tight mb-6">
+      top: '-150px',
+      left: '-220px',
 
-                Opportunities for{' '}
+      width: '760px',
+      height: '560px',
 
-                <span className="text-[var(--color-primary)]">
-                  Brighter Tomorrows
-                </span>
+      background: `
+        radial-gradient(
+          ellipse 68% 62% at 58% 52%,
+          rgba(255, 255, 255, 0.78) 0%,
+          rgba(255, 255, 255, 0.62) 28%,
+          rgba(255, 255, 255, 0.43) 48%,
+          rgba(255, 255, 255, 0.22) 66%,
+          rgba(255, 255, 255, 0.08) 82%,
+          transparent 100%
+        )
+      `,
 
-              </h1>
+      filter: 'blur(32px)',
 
-              <p className="text-lg md:text-xl text-[var(--color-text-muted)] leading-relaxed mb-8">
+      pointerEvents: 'none',
+      zIndex: 0,
+    }}
+  />
 
-                A freelance platform made for students, by students.
-                Find gigs, hire talented peers, and grow together.
+  {/* Content */}
+  <div
+    style={{
+      position: 'relative',
+      zIndex: 1,
 
-              </p>
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-start',
 
-              <div className="flex flex-col sm:flex-row gap-4">
+      width: '100%',
 
-                <Link to="/signup">
-                  <Button
-                    size="lg"
-                    className="w-full sm:w-auto"
-                  >
-                    Get Started
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </Link>
+      textAlign: 'left',
+    }}
+  >
+    {/* Badge */}
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
 
-                <Link to="/gigs">
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    className="w-full sm:w-auto"
-                  >
-                    Explore Gigs
-                  </Button>
-                </Link>
+        width: 'fit-content',
+        alignSelf: 'flex-start',
 
-              </div>
+        padding: '6px 14px',
+        marginBottom: '16px',
 
-            </div>
+        borderRadius: '9999px',
 
+        background: 'rgba(107, 141, 214, 0.15)',
+        color: '#4A67B8',
 
-            {/* RIGHT IMAGE */}
+        fontSize: '13px',
+        fontWeight: 600,
+        letterSpacing: '0.02em',
 
-            <div className="w-full">
+        whiteSpace: 'nowrap',
+      }}
+    >
+      Built by students, for students
+    </div>
 
-              <div className="overflow-hidden rounded-[var(--radius-xl)] shadow-[var(--shadow-lg)]">
+    {/* Headline */}
+    <h1
+      style={{
+        margin: '0 0 15px 0',
+        padding: 0,
 
-                <img
-                  src="/hero-background.png"
-                  alt="Students working together"
-                  className="w-full h-[320px] md:h-[420px] object-cover"
-                />
+        width: '100%',
+        maxWidth: '460px',
 
-              </div>
+        fontSize: 'clamp(1.9rem, 3vw, 2.55rem)',
+        fontWeight: 700,
+        lineHeight: 1.16,
 
-            </div>
+        color: '#1e2a40',
+        letterSpacing: '-0.025em',
 
-          </div>
+        textAlign: 'left',
 
-        </div>
-      </section>
+        textShadow:
+          '0 1px 8px rgba(255, 255, 255, 0.5)',
+      }}
+    >
+      Opportunities for
+      <br />
+      <span style={{ color: '#6B8DD6' }}>
+        Brighter Tomorrows
+      </span>
+    </h1>
 
+    {/* Description */}
+    <p
+      style={{
+        margin: '0 0 23px 0',
+        padding: 0,
 
+        width: '100%',
+        maxWidth: '355px',
+
+        fontSize: '0.96rem',
+        lineHeight: 1.55,
+        fontWeight: 400,
+
+        color: '#35425c',
+
+        textAlign: 'left',
+
+        textShadow:
+          '0 1px 7px rgba(255, 255, 255, 0.5)',
+      }}
+    >
+      A freelance platform made for students, by students.
+      Find gigs, hire peers, and grow together.
+    </p>
+
+    {/* Buttons */}
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        gap: '12px',
+      }}
+    >
+      {/* Get Started */}
+      <Link to="/signup">
+        <button
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+
+            padding: '11px 26px',
+
+            background: '#6B8DD6',
+            color: '#fff',
+
+            borderRadius: '10px',
+            border: 'none',
+
+            fontSize: '15px',
+            fontWeight: 600,
+
+            cursor: 'pointer',
+
+            transition:
+              'background 0.18s ease, transform 0.18s ease',
+
+            boxShadow:
+              '0 2px 12px rgba(107, 141, 214, 0.25)',
+
+            letterSpacing: '0.01em',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = '#5577C8';
+            e.currentTarget.style.transform =
+              'translateY(-1px)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = '#6B8DD6';
+            e.currentTarget.style.transform =
+              'translateY(0)';
+          }}
+        >
+          Get Started
+
+          <ArrowRight
+            style={{
+              width: '16px',
+              height: '16px',
+            }}
+          />
+        </button>
+      </Link>
+
+      {/* Explore Gigs */}
+      <Link to="/gigs">
+        <button
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+
+            padding: '11px 24px',
+
+            background: 'rgba(255, 255, 255, 0.48)',
+            color: '#34415a',
+
+            borderRadius: '10px',
+            border:
+              '1.5px solid rgba(107, 141, 214, 0.22)',
+
+            fontSize: '15px',
+            fontWeight: 600,
+
+            cursor: 'pointer',
+
+            transition:
+              'background 0.18s ease, border-color 0.18s ease',
+
+            backdropFilter: 'blur(2px)',
+            WebkitBackdropFilter: 'blur(2px)',
+
+            letterSpacing: '0.01em',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background =
+              'rgba(255, 255, 255, 0.62)';
+            e.currentTarget.style.borderColor =
+              'rgba(107, 141, 214, 0.35)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background =
+              'rgba(255, 255, 255, 0.48)';
+            e.currentTarget.style.borderColor =
+              'rgba(107, 141, 214, 0.22)';
+          }}
+        >
+          Explore Gigs
+        </button>
+      </Link>
+    </div>
+  </div>
+</div>
+</section>
       {/* =========================
           WHY UNIGIGS
       ========================== */}
@@ -180,8 +408,6 @@ export function HomePage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          {/* HEADING */}
-
           <div className="text-center max-w-3xl mx-auto mb-12 md:mb-14">
 
             <p className="text-sm font-semibold tracking-wide text-[var(--color-primary)] uppercase mb-3">
@@ -189,26 +415,18 @@ export function HomePage() {
             </p>
 
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--color-text)] leading-tight mb-4">
-
               Built for Students.{' '}
-
               <span className="text-[var(--color-primary)]">
                 Designed for Growth.
               </span>
-
             </h2>
 
             <p className="text-base md:text-lg text-[var(--color-text-muted)] leading-relaxed">
-
               Everything you need to start your freelance journey,
               build experience, and earn while you learn.
-
             </p>
 
           </div>
-
-
-          {/* FEATURE CARDS */}
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
 
@@ -244,15 +462,11 @@ export function HomePage() {
                 </div>
 
                 <h3 className="text-xl font-semibold text-[var(--color-text)] mb-3">
-
                   {feature.title}
-
                 </h3>
 
                 <p className="text-[var(--color-text-muted)] leading-relaxed">
-
                   {feature.description}
-
                 </p>
 
               </div>
@@ -265,7 +479,6 @@ export function HomePage() {
 
       </section>
 
-
       {/* =========================
           POPULAR GIGS
       ========================== */}
@@ -274,8 +487,6 @@ export function HomePage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          {/* HEADING */}
-
           <div className="text-center mb-12 md:mb-14">
 
             <p className="text-sm font-semibold tracking-wide text-[var(--color-primary)] uppercase mb-3">
@@ -283,21 +494,14 @@ export function HomePage() {
             </p>
 
             <h2 className="text-3xl md:text-4xl font-bold text-[var(--color-text)] mb-3">
-
               Popular Gigs
-
             </h2>
 
             <p className="text-lg text-[var(--color-text-muted)]">
-
               Explore what students are offering right now.
-
             </p>
 
           </div>
-
-
-          {/* GIG CARDS */}
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
 
@@ -318,15 +522,11 @@ export function HomePage() {
               >
 
                 <p className="text-sm font-medium text-[var(--color-primary)] mb-3">
-
                   {gig.category}
-
                 </p>
 
                 <h3 className="text-lg font-semibold text-[var(--color-text)] leading-snug mb-5">
-
                   {gig.title}
-
                 </h3>
 
                 <div className="pt-4 border-t border-[var(--color-border)]">
@@ -336,9 +536,7 @@ export function HomePage() {
                   </p>
 
                   <p className="text-2xl font-bold text-[var(--color-text)]">
-
                     {gig.budget}
-
                   </p>
 
                 </div>
@@ -348,9 +546,6 @@ export function HomePage() {
             ))}
 
           </div>
-
-
-          {/* BUTTON */}
 
           <div className="text-center mt-12">
 
@@ -372,7 +567,6 @@ export function HomePage() {
 
       </section>
 
-
       {/* =========================
           HOW IT WORKS
       ========================== */}
@@ -381,8 +575,6 @@ export function HomePage() {
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          {/* HEADING */}
-
           <div className="text-center mb-12 md:mb-14">
 
             <p className="text-sm font-semibold tracking-wide text-[var(--color-primary)] uppercase mb-3">
@@ -390,21 +582,14 @@ export function HomePage() {
             </p>
 
             <h2 className="text-3xl md:text-4xl font-bold text-[var(--color-text)] mb-3">
-
               How It Works
-
             </h2>
 
             <p className="text-lg text-[var(--color-text-muted)]">
-
               Start your freelance journey in three simple steps.
-
             </p>
 
           </div>
-
-
-          {/* STEPS */}
 
           <div className="grid md:grid-cols-3 gap-10 md:gap-12">
 
@@ -432,21 +617,15 @@ export function HomePage() {
                     shadow-[var(--shadow-sm)]
                   "
                 >
-
                   {item.step}
-
                 </div>
 
                 <h3 className="text-xl font-semibold text-[var(--color-text)] mb-3">
-
                   {item.title}
-
                 </h3>
 
                 <p className="text-[var(--color-text-muted)] leading-relaxed">
-
                   {item.desc}
-
                 </p>
 
               </div>
@@ -459,7 +638,6 @@ export function HomePage() {
 
       </section>
 
-
       {/* =========================
           CTA SECTION
       ========================== */}
@@ -469,16 +647,12 @@ export function HomePage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-
             Ready to Start Your Freelance Journey?
-
           </h2>
 
           <p className="text-lg md:text-xl text-white/85 leading-relaxed mb-10">
-
             Join a growing community of students learning,
             collaborating, and building their experience.
-
           </p>
 
           <Link to="/signup">
@@ -491,11 +665,8 @@ export function HomePage() {
                 hover:bg-[var(--color-background-alt)]
               "
             >
-
               Join Now — It's Free
-
               <ArrowRight className="ml-2 w-5 h-5" />
-
             </Button>
 
           </Link>
@@ -503,7 +674,6 @@ export function HomePage() {
         </div>
 
       </section>
-
 
       {/* =========================
           FOOTER
@@ -515,34 +685,23 @@ export function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
-            {/* BRAND */}
-
             <div>
 
               <h3 className="text-xl font-bold text-[var(--color-text)] mb-4">
-
                 UniGigs
-
               </h3>
 
               <p className="text-sm text-[var(--color-text-muted)] leading-relaxed max-w-xs">
-
                 A freelance platform built to help students
                 learn, collaborate, and grow.
-
               </p>
 
             </div>
 
-
-            {/* PLATFORM */}
-
             <div>
 
               <h4 className="font-semibold text-[var(--color-text)] mb-4">
-
                 Platform
-
               </h4>
 
               <ul className="space-y-3 text-sm">
@@ -569,15 +728,10 @@ export function HomePage() {
 
             </div>
 
-
-            {/* SUPPORT */}
-
             <div>
 
               <h4 className="font-semibold text-[var(--color-text)] mb-4">
-
                 Support
-
               </h4>
 
               <ul className="space-y-3 text-sm">
@@ -604,15 +758,10 @@ export function HomePage() {
 
             </div>
 
-
-            {/* LEGAL */}
-
             <div>
 
               <h4 className="font-semibold text-[var(--color-text)] mb-4">
-
                 Legal
-
               </h4>
 
               <ul className="space-y-3 text-sm">
@@ -635,15 +784,10 @@ export function HomePage() {
 
           </div>
 
-
-          {/* COPYRIGHT */}
-
           <div className="border-t border-[var(--color-border)] mt-10 pt-6 text-center">
 
             <p className="text-sm text-[var(--color-text-muted)]">
-
               © 2026 UniGigs. Built for students.
-
             </p>
 
           </div>

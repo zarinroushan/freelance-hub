@@ -45,6 +45,15 @@ class FreelancerUserResponse(BaseModel):
         from_attributes = True
 
 
+class ApplicationGigResponse(BaseModel):
+    id: int
+    title: str
+    budget: int
+
+    class Config:
+        from_attributes = True
+
+
 class ApplicationResponse(BaseModel):
     id: int
     gig_id: int
@@ -56,6 +65,7 @@ class ApplicationResponse(BaseModel):
     status: ApplicationStatus
     created_at: datetime
     freelancer: Optional[FreelancerUserResponse] = None
+    gig: Optional[ApplicationGigResponse] = None
 
     class Config:
         from_attributes = True

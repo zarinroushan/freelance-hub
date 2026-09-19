@@ -16,8 +16,14 @@ export function GoogleCallbackPage() {
     }
 
     loginWithGoogleCode(code)
-      .then(() => navigate('/dashboard', { replace: true }))
-      .catch((loginError: Error) => setError(loginError.message))
+      .then((loggedUser) => {
+        if (loggedUser.role === 'student') {
+          navigate('/gigs', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
+      })
+      .catch((loginError: Error) => setError(loginError.message));
   }, [loginWithGoogleCode, navigate, searchParams]);
 
   return (

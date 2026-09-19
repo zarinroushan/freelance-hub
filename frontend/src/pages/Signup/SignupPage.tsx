@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 
 export function SignupPage() {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -32,8 +33,12 @@ export function SignupPage() {
     setLoading(true);
 
     try {
-      await register(email, password, role);
-      navigate('/dashboard');
+      const registeredUser = await register(email, password, role, fullName);
+      if (registeredUser.role === 'student') {
+        navigate('/gigs');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       setError(err.message || err.response?.data?.detail || 'Signup failed. Please try again.');
     } finally {
@@ -64,6 +69,15 @@ export function SignupPage() {
                 {error}
               </div>
             )}
+
+            <Input
+              label="Full Name"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="e.g. Alex Sharma"
+              required
+            />
 
             <Input
               label="Email"

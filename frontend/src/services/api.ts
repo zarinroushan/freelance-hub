@@ -1,8 +1,14 @@
 import axios from 'axios';
 
 // Use environment variable VITE_API_URL if set (e.g. https://unigigs-backend-9pgj.onrender.com/api)
-// Strip trailing slash if present
-export const API_BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
+// Ensure base URL always ends with /api
+const getApiBaseUrl = (): string => {
+  const envUrl = (import.meta.env.VITE_API_URL || '/api').trim().replace(/\/+$/, '');
+  if (!envUrl) return '/api';
+  return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,

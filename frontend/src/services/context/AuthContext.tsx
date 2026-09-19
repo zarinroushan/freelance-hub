@@ -13,13 +13,14 @@ import type { User } from '../../types';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  loginWithGoogleCode: (code: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  loginWithGoogleCode: (code: string) => Promise<User>;
   register: (
     email: string,
     password: string,
-    role: 'student' | 'client'
-  ) => Promise<void>;
+    role: 'student' | 'client',
+    fullName?: string
+  ) => Promise<User>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -68,8 +69,9 @@ export function AuthProvider({
   const register = async (
     email: string,
     password: string,
-    role: 'student' | 'client'
-  ): Promise<void> => {
+    role: 'student' | 'client',
+    fullName?: string
+  ): Promise<User> => {
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!normalizedEmail || !password) {
@@ -85,6 +87,7 @@ export function AuthProvider({
         email: normalizedEmail,
         password,
         role,
+        full_name: fullName?.trim() || undefined,
       }),
     });
 
@@ -107,13 +110,14 @@ export function AuthProvider({
     );
 
     setUser(authData.user);
+    return authData.user;
   };
 
   // LOGIN
   const login = async (
     email: string,
     password: string
-  ): Promise<void> => {
+  ): Promise<User> => {
     const normalizedEmail = email.trim().toLowerCase();
 
     const response = await fetch(`${API_URL}/login`, {
@@ -148,9 +152,10 @@ export function AuthProvider({
     );
 
     setUser(authData.user);
+    return authData.user;
   };
 
-  const loginWithGoogleCode = async (code: string): Promise<void> => {
+  const loginWithGoogleCode = async (code: string): Promise<User> => {
     const response = await fetch(`${API_URL}/google/exchange`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -166,6 +171,7 @@ export function AuthProvider({
     localStorage.setItem(TOKEN_STORAGE_KEY, authData.access_token);
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(authData.user));
     setUser(authData.user);
+    return authData.user;
   };
 
   // LOGOUT
