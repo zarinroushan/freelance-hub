@@ -37,6 +37,12 @@ class Settings(BaseSettings):
 
     # Application
     APP_ENV: str = "development"
+    FRONTEND_URL: str = "http://localhost:5173"
+
+    # Google OAuth (optional until configured)
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/auth/google/callback"
 
     @property
     def cors_origins_list(self) -> List[str]:

@@ -20,6 +20,13 @@ interface Profile {
   created_at?: string;
 }
 
+interface Review {
+  id: number;
+  rating: number;
+  comment?: string;
+  created_at: string;
+}
+
 export function ProfilePage() {
   const { userId } = useParams<{ userId?: string }>();
   const { user } = useAuth();
@@ -27,6 +34,7 @@ export function ProfilePage() {
   const [userEmail, setUserEmail] = useState<string>('');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [formData, setFormData] = useState({
     full_name: '',
     bio: '',
@@ -55,11 +63,17 @@ export function ProfilePage() {
             });
           }
           setUserEmail(data.user?.email || '');
+          const reviewsResponse = await api.get(`/reviews/user/${userId}`);
+          setReviews(reviewsResponse.data);
         } else {
           const response = await api.get('/users/profile/me');
           const data = response.data;
           setProfile(data);
           setUserEmail(user?.email || '');
+          if (user) {
+            const reviewsResponse = await api.get(`/reviews/user/${user.id}`);
+            setReviews(reviewsResponse.data);
+          }
           setFormData({
             full_name: data.full_name || '',
             bio: data.bio || '',
@@ -164,6 +178,29 @@ export function ProfilePage() {
                   <Edit2 size={16} className="mr-2" />
                   {isEditing ? 'Cancel' : 'Edit Profile'}
                 </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="mt-6">
+            <CardHeader>
+              <h3 className="font-semibold">Reviews</h3>
+            </CardHeader>
+            <CardContent>
+              {reviews.length === 0 ? (
+                <p className="text-sm text-[var(--color-text-muted)]">No reviews yet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <div key={review.id} className="border-b border-[var(--color-border)] last:border-0 pb-3 last:pb-0">
+                      <div className="font-medium text-[var(--color-warning)]">
+                        {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                      </div>
+                      {review.comment && <p className="text-sm text-[var(--color-text)] mt-1">{review.comment}</p>}
+                      <p className="text-xs text-[var(--color-text-muted)] mt-1">{new Date(review.created_at).toLocaleDateString()}</p>
+                    </div>
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>

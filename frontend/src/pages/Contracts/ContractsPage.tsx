@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { API_BASE_URL, getAuthToken } from '../../services/api';
+import { useAuth } from '../../services/context/AuthContext';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Briefcase, Clock, DollarSign, CheckCircle, Package } from 'lucide-react';
@@ -13,11 +14,17 @@ interface Contract {
   status: 'pending' | 'active' | 'submitted' | 'completed' | 'cancelled';
   created_at: string;
   delivery_deadline: string;
+  reviewed_by_me?: boolean;
 }
 
 export function ContractsPage() {
+  const { user } = useAuth();
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reviewingId, setReviewingId] = useState<number | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewLoading, setReviewLoading] = useState(false);
 
   useEffect(() => {
     const fetchContracts = async () => {
@@ -114,6 +121,38 @@ export function ContractsPage() {
     } catch (error) {
       console.error('Error approving:', error);
       alert('Failed to approve');
+    }
+  };
+
+  const handleReview = async (contractId: number) => {
+    setReviewLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify({
+          contract_id: contractId,
+          rating: reviewRating,
+          comment: reviewComment.trim() || null,
+        }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail || 'Failed to submit review');
+      }
+      setContracts((current) => current.map((contract) => (
+        contract.id === contractId ? { ...contract, reviewed_by_me: true } : contract
+      )));
+      setReviewingId(null);
+      setReviewComment('');
+      setReviewRating(5);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to submit review');
+    } finally {
+      setReviewLoading(false);
     }
   };
 
@@ -241,8 +280,43 @@ export function ContractsPage() {
                       Approve & Pay
                     </Button>
                   )}
+                  {user?.role === 'student' && contract.freelancer_id === user.id && contract.status === 'completed' && (
+                    contract.reviewed_by_me ? (
+                      <span className="inline-flex items-center text-sm text-[var(--color-success)]">Review submitted</span>
+                    ) : (
+                      <Button variant="secondary" onClick={() => setReviewingId(reviewingId === contract.id ? null : contract.id)}>
+                        Leave a Review
+                      </Button>
+                    )
+                  )}
                   <Button variant="secondary">View Details</Button>
                 </div>
+                {reviewingId === contract.id && (
+                  <div className="mt-4 pt-4 border-t border-[var(--color-border)] space-y-3">
+                    <div>
+                      <label htmlFor={`rating-${contract.id}`} className="block text-sm font-medium text-[var(--color-text)] mb-1">Rating</label>
+                      <select
+                        id={`rating-${contract.id}`}
+                        value={reviewRating}
+                        onChange={(event) => setReviewRating(Number(event.target.value))}
+                        className="px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)]"
+                      >
+                        {[5, 4, 3, 2, 1].map((rating) => <option key={rating} value={rating}>{rating} / 5</option>)}
+                      </select>
+                    </div>
+                    <textarea
+                      value={reviewComment}
+                      onChange={(event) => setReviewComment(event.target.value)}
+                      maxLength={2000}
+                      rows={3}
+                      placeholder="Share an optional comment"
+                      className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)]"
+                    />
+                    <Button onClick={() => handleReview(contract.id)} disabled={reviewLoading}>
+                      {reviewLoading ? 'Submitting...' : 'Submit Review'}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

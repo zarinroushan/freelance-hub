@@ -69,7 +69,7 @@ export const Navbar: React.FC = () => {
     if (user.role === 'student') {
       return [
         {
-          label: 'Explore',
+          label: 'Apply a Gig',
           path: '/gigs',
         },
         {

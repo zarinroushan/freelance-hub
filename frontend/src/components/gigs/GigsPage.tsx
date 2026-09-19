@@ -14,19 +14,21 @@ export function GigsPage() {
   const [gigs, setGigs] = useState<Gig[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState('recent');
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const fetchGigs = async () => {
+      setLoading(true);
       try {
-        const [gigsData, categoriesData] = await Promise.all([
-          gigService.getGigs({ category: selectedCategory || undefined, sort: sortBy as any }),
-          gigService.getCategories(),
-        ]);
+        const gigsData = await gigService.getGigs({ category: selectedCategory || undefined, sort: sortBy as any, page: 1, limit: 20 });
         setGigs(gigsData);
-        setCategories(categoriesData);
+        setPage(1);
+        setHasMore(gigsData.length === 20);
       } catch (error) {
         console.error('Error fetching gigs:', error);
       } finally {
@@ -36,6 +38,34 @@ export function GigsPage() {
 
     fetchGigs();
   }, [selectedCategory, sortBy]);
+
+  useEffect(() => {
+    gigService.getCategories()
+      .then(setCategories)
+      .catch((error) => console.error('Error fetching categories:', error));
+  }, []);
+
+  const handleLoadMore = async () => {
+    if (loading || loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const nextGigs = await gigService.getGigs({
+        category: selectedCategory || undefined,
+        sort: sortBy as any,
+        page: nextPage,
+        limit: 20,
+      });
+      setGigs((current) => [...current, ...nextGigs]);
+      setPage(nextPage);
+      setHasMore(nextGigs.length === 20);
+    } catch (error) {
+      console.error('Error loading more gigs:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleSaveGig = async (gigId: number) => {
     try {
@@ -154,12 +184,15 @@ export function GigsPage() {
         )}
 
         {/* Load More */}
-        {!loading && gigs.length > 0 && (
+        {!loading && gigs.length > 0 && hasMore && (
           <div className="mt-12 text-center">
-            <Button variant="secondary" size="lg">
-              Load More Gigs
+            <Button variant="secondary" size="lg" onClick={handleLoadMore} disabled={loadingMore}>
+              {loadingMore ? 'Loading...' : 'Load More Gigs'}
             </Button>
           </div>
+        )}
+        {!loading && gigs.length > 0 && !hasMore && (
+          <p className="mt-12 text-center text-[var(--color-text-muted)]">No more gigs available.</p>
         )}
       </div>
     </div>
