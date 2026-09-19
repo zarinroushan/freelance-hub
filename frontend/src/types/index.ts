@@ -60,9 +60,10 @@ export interface Contract {
   client_id: number;
   freelancer_id: number;
   agreed_budget: number;
-  status: 'pending' | 'active' | 'submitted' | 'completed' | 'cancelled';
+  status: 'pending' | 'active' | 'submitted' | 'revision_requested' | 'completed' | 'cancelled';
   created_at: string;
   reviewed_by_me?: boolean;
+  revision_feedback?: string | null;
 }
 
 export interface Category {

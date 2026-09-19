@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 from typing import List
 from datetime import datetime
@@ -60,22 +61,21 @@ def get_my_applications(current_user: dict = Depends(get_current_user), db: Sess
     user_id = int(current_user["user_id"])
     user = db.query(User).filter(User.id == user_id).first()
 
-    # Clients see all their applications (for their gigs)
+    # Clients see applications submitted to their gigs.
     if user.role == UserRole.CLIENT:
-        apps = db.query(Application).filter(Application.freelancer_id == user_id).order_by(Application.created_at.desc()).all()
+        apps = (
+            db.query(Application)
+            .join(Gig, Application.gig_id == Gig.id)
+            .filter(Gig.client_id == user_id)
+            .order_by(Application.created_at.desc())
+            .all()
+        )
         return [ApplicationResponse.model_validate(a) for a in apps]
 
-    # Freelancers: exclude applications for gigs that already have an accepted applicant
-    filled_gig_ids = (
-        db.query(Application.gig_id)
-        .filter(Application.status == ApplicationStatus.ACCEPTED)
-        .subquery()
-    )
     apps = (
         db.query(Application)
         .filter(
             Application.freelancer_id == user_id,
-            ~Application.gig_id.in_(filled_gig_ids),
         )
         .order_by(Application.created_at.desc())
         .all()
@@ -150,9 +150,22 @@ def accept_application(application_id: int, current_user: dict = Depends(get_cur
     if gig.client_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
+    existing_contract = db.query(Contract).filter(Contract.gig_id == gig.id).first()
+    if existing_contract:
+        if existing_contract.application_id == app.id:
+            return {
+                "message": "Application already accepted",
+                "contract_id": existing_contract.id,
+            }
+        raise HTTPException(status_code=409, detail="This gig already has an accepted application")
+
+    if app.status != ApplicationStatus.PENDING:
+        raise HTTPException(status_code=409, detail="Only pending applications can be accepted")
+
     # Mark the accepted application
     app.status = ApplicationStatus.ACCEPTED
     app.responded_at = datetime.utcnow()
+    gig.status = GigStatus.CLOSED
 
     # Create a contract for the accepted application
     contract = Contract(
@@ -165,6 +178,16 @@ def accept_application(application_id: int, current_user: dict = Depends(get_cur
         status=ContractStatus.ACTIVE,
     )
     db.add(contract)
+    db.flush()
+
+    db.add(Notification(
+        user_id=app.freelancer_id,
+        type=NotificationType.APPLICATION_ACCEPTED,
+        title="Application Accepted",
+        message=f"Your application for {gig.title} was accepted.",
+        related_entity_type="contract",
+        related_entity_id=contract.id,
+    ))
 
     # Reject all other pending applications for this gig
     other_apps = db.query(Application).filter(
@@ -175,8 +198,26 @@ def accept_application(application_id: int, current_user: dict = Depends(get_cur
     for other in other_apps:
         other.status = ApplicationStatus.REJECTED
         other.responded_at = datetime.utcnow()
+        db.add(Notification(
+            user_id=other.freelancer_id,
+            type=NotificationType.APPLICATION_REJECTED,
+            title="Application Update",
+            message=f"Another applicant was selected for {gig.title}.",
+            related_entity_type="gig",
+            related_entity_id=gig.id,
+        ))
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        existing_contract = db.query(Contract).filter(Contract.gig_id == gig.id).first()
+        if existing_contract and existing_contract.application_id == app.id:
+            return {
+                "message": "Application already accepted",
+                "contract_id": existing_contract.id,
+            }
+        raise HTTPException(status_code=409, detail="This gig already has an accepted application")
     db.refresh(app)
     db.refresh(contract)
 

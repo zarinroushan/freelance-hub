@@ -11,10 +11,11 @@ interface Contract {
   client_id: number;
   freelancer_id: number;
   agreed_budget: number;
-  status: 'pending' | 'active' | 'submitted' | 'completed' | 'cancelled';
+  status: 'pending' | 'active' | 'submitted' | 'revision_requested' | 'completed' | 'cancelled';
   created_at: string;
   delivery_deadline: string;
   reviewed_by_me?: boolean;
+  revision_feedback?: string | null;
 }
 
 export function ContractsPage() {
@@ -54,6 +55,7 @@ export function ContractsPage() {
       case 'active': return 'bg-green-100 text-green-800';
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'submitted': return 'bg-blue-100 text-blue-800';
+      case 'revision_requested': return 'bg-yellow-100 text-yellow-800';
       case 'completed': return 'bg-purple-100 text-purple-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
@@ -92,6 +94,33 @@ export function ContractsPage() {
     } catch (error) {
       console.error('Error delivering:', error);
       alert('Failed to submit work');
+    }
+  };
+
+  const handleRequestRevision = async (contractId: number) => {
+    const feedback = prompt('Describe the changes needed:')?.trim();
+    if (!feedback) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/contracts/${contractId}/request-revision`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify({ feedback }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail || 'Failed to request revision');
+      }
+      setContracts((current) => current.map((contract) => (
+        contract.id === contractId
+          ? { ...contract, status: 'revision_requested', revision_feedback: feedback }
+          : contract
+      )));
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to request revision');
     }
   };
 
@@ -266,19 +295,30 @@ export function ContractsPage() {
                     </div>
                   </div>
                 </div>
+                {contract.status === 'revision_requested' && contract.revision_feedback && (
+                  <div className="p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-sm text-yellow-900">
+                    <p className="font-semibold">Revision feedback</p>
+                    <p className="mt-1">{contract.revision_feedback}</p>
+                  </div>
+                )}
 
                 {/* Actions */}
                 <div className="flex space-x-3 pt-4 border-t border-[var(--color-border)]">
-                  {contract.status === 'active' && (
+                  {(contract.status === 'active' || contract.status === 'revision_requested') && user?.role === 'student' && (
                     <Button onClick={() => handleDeliver(contract.id)}>
-                      Submit Work
+                      {contract.status === 'revision_requested' ? 'Resubmit Work' : 'Submit Work'}
                     </Button>
                   )}
-                  {contract.status === 'submitted' && (
-                    <Button onClick={() => handleApprove(contract.id)}>
-                      <CheckCircle size={16} className="mr-2" />
-                      Approve & Pay
-                    </Button>
+                  {contract.status === 'submitted' && user?.role === 'client' && (
+                    <>
+                      <Button variant="secondary" onClick={() => handleRequestRevision(contract.id)}>
+                        Request Revision
+                      </Button>
+                      <Button onClick={() => handleApprove(contract.id)}>
+                        <CheckCircle size={16} className="mr-2" />
+                        Approve & Pay
+                      </Button>
+                    </>
                   )}
                   {user?.role === 'student' && contract.freelancer_id === user.id && contract.status === 'completed' && (
                     contract.reviewed_by_me ? (
