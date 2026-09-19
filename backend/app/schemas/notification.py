@@ -10,6 +10,10 @@ class NotificationType(str, Enum):
     APPLICATION_REJECTED = "application_rejected"
     CONTRACT_CREATED = "contract_created"
     CONTRACT_COMPLETED = "contract_completed"
+    WORK_SUBMITTED = "work_submitted"
+    WORK_APPROVED = "work_approved"
+    PAYMENT_RELEASED = "payment_released"
+    GIG_POSTED = "gig_posted"
     MESSAGE_RECEIVED = "message_received"
     REVIEW_RECEIVED = "review_received"
 

@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../services/context/AuthContext';
 import { API_BASE_URL, getAuthToken } from '../../services/api';
 
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { SkeletonGrid } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/StateComponents';
-import { CheckCircle, Clock, XCircle, FileText, ShieldAlert } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, FileText } from 'lucide-react';
 
 interface Application {
   id: number;
@@ -29,9 +28,6 @@ export function ApplicationsPage() {
     'all' | 'pending' | 'accepted' | 'rejected'
   >('all');
 
-  const { user } = useAuth();
-  const isClient = user?.role === 'client';
-  const [filledGigIds, setFilledGigIds] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -46,11 +42,6 @@ export function ApplicationsPage() {
           const data = await response.json();
           setApplications(data);
 
-          // Collect gig IDs of accepted applications (filled gigs)
-          const acceptedIds = data
-            .filter((a: Application) => a.status === 'accepted')
-            .map((a: Application) => a.gig_id);
-          setFilledGigIds(acceptedIds);
         } else {
           console.error('Failed to fetch applications');
         }
@@ -65,10 +56,6 @@ export function ApplicationsPage() {
   }, []);
 
   const filteredApps = applications.filter((app) => {
-    // Hide applications for gigs that already have an accepted applicant (freelancer view)
-    if (!isClient && filledGigIds.includes(app.gig_id)) {
-      return false;
-    }
     if (activeTab === 'all') {
       return true;
     }
@@ -76,7 +63,7 @@ export function ApplicationsPage() {
     return app.status === activeTab;
   });
 
-  const displayCount = filteredApps.length + (isClient ? 0 : filledGigIds.length);
+  const displayCount = filteredApps.length;
 
   const getStatusIcon = (status: Application['status']) => {
     switch (status) {
@@ -141,19 +128,6 @@ export function ApplicationsPage() {
             </Button>
           </Link>
         </div>
-
-        {/* Notice: some gigs already filled */}
-        {filledGigIds.length > 0 && (
-          <div className="flex items-start gap-3 p-4 mb-6 rounded-lg bg-[var(--color-warning-bg)] border border-[var(--color-warning)] text-[var(--color-warning)]">
-            <ShieldAlert size={20} className="flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold">Some gigs you applied to already have an accepted applicant</p>
-              <p className="text-sm mt-1 text-[var(--color-text-secondary)]">
-                Those applications are no longer visible.
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Stats Cards */}
         {applications.length > 0 && (

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum, Boolean
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
@@ -17,6 +17,9 @@ class ContractStatus(str, enum.Enum):
 
 class Contract(Base):
     __tablename__ = "contracts"
+    __table_args__ = (
+        UniqueConstraint("gig_id", name="uq_contracts_gig_id"),
+    )
     
     id = Column(Integer, primary_key=True, index=True)
     gig_id = Column(Integer, ForeignKey("gigs.id"), nullable=False)
@@ -28,6 +31,7 @@ class Contract(Base):
     start_date = Column(DateTime, default=datetime.utcnow)
     status = Column(Enum(ContractStatus), default=ContractStatus.PENDING)
     completion_date = Column(DateTime)
+    revision_feedback = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     payment = relationship("Payment", back_populates="contract", uselist=False)
