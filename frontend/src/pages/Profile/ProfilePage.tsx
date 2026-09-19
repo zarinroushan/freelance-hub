@@ -126,7 +126,7 @@ export function ProfilePage() {
           const response = await api.get(`/users/${userId}`);
           const data = response.data;
           const email = data.user?.email || '';
-          const fallbackName = email ? email.split('@')[0].replace('.', ' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase()) : `User #${userId}`;
+          const fallbackName = email ? email.split('@')[0].replace('.', ' ').replace(/(^\w|\s\w)/g, (m: string) => m.toUpperCase()) : `User #${userId}`;
           
           if (data.profile) {
             setProfile({
