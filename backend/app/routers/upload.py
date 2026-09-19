@@ -1,12 +1,14 @@
 import os
 import uuid
 import base64
+import logging
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from typing import Optional
 from app.core.config import settings
 from app.core.security import get_current_user
 
 router = APIRouter()
+logger = logging.getLogger("unigigs.upload")
 
 # Try importing cloudinary SDK
 try:
@@ -26,13 +28,17 @@ def is_cloudinary_configured() -> bool:
     )
 
 
-if is_cloudinary_configured():
-    cloudinary.config(
-        cloud_name=settings.CLOUDINARY_CLOUD_NAME,
-        api_key=settings.CLOUDINARY_API_KEY,
-        api_secret=settings.CLOUDINARY_API_SECRET,
-        secure=True,
-    )
+def configure_cloudinary():
+    """Configure cloudinary lazily on each call to pick up env vars correctly."""
+    if is_cloudinary_configured():
+        cloudinary.config(
+            cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+            api_key=settings.CLOUDINARY_API_KEY,
+            api_secret=settings.CLOUDINARY_API_SECRET,
+            secure=True,
+        )
+        return True
+    return False
 
 
 @router.get("/config")
@@ -61,7 +67,7 @@ async def upload_image(
 
     content = await file.read()
     
-    if is_cloudinary_configured():
+    if configure_cloudinary():
         try:
             result = cloudinary.uploader.upload(
                 content,
@@ -76,11 +82,12 @@ async def upload_image(
                 "provider": "cloudinary",
             }
         except Exception as e:
+            logger.error("Cloudinary image upload failed: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500, detail=f"Cloudinary upload failed: {str(e)}"
             )
 
-    # Fallback mode: data URL or local static upload
+    # Fallback: Cloudinary not configured — return base64 data URL
     encoded = base64.b64encode(content).decode("utf-8")
     data_url = f"data:{file.content_type};base64,{encoded}"
     return {
@@ -103,7 +110,7 @@ async def upload_file(
     """
     content = await file.read()
 
-    if is_cloudinary_configured():
+    if configure_cloudinary():
         try:
             result = cloudinary.uploader.upload(
                 content,
@@ -119,11 +126,12 @@ async def upload_file(
                 "provider": "cloudinary",
             }
         except Exception as e:
+            logger.error("Cloudinary file upload failed: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500, detail=f"Cloudinary file upload failed: {str(e)}"
             )
 
-    # Fallback mode: return data URL for attachment preview
+    # Fallback: Cloudinary not configured — return base64 data URL
     encoded = base64.b64encode(content).decode("utf-8")
     data_url = f"data:{file.content_type or 'application/octet-stream'};base64,{encoded}"
     return {
