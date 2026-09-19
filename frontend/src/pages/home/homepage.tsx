@@ -111,23 +111,32 @@ export function HomePage() {
     overflow: 'hidden',
   }}
 >
-  {/* Background image */}
-  <img
-    src="/hero-background.png"
-    alt="Students working together"
-    style={{
-      position: 'absolute',
-      inset: 0,
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      objectPosition: 'center top',
-      zIndex: 0,
-    }}
+  {/* Theme-aware hero background */}
+  <div
+    className="hero-background hero-background-light"
+    aria-hidden="true"
   />
+
+  <div
+    className="hero-background hero-background-dark"
+    aria-hidden="true"
+  />
+
+  {/* Floating cherry blossom petals */}
+  <div className="hero-petals" aria-hidden="true">
+    <span className="hero-petal hero-petal-1" />
+    <span className="hero-petal hero-petal-2" />
+    <span className="hero-petal hero-petal-3" />
+    <span className="hero-petal hero-petal-4" />
+    <span className="hero-petal hero-petal-5" />
+    <span className="hero-petal hero-petal-6" />
+    <span className="hero-petal hero-petal-7" />
+    <span className="hero-petal hero-petal-8" />
+  </div>
 
   {/* Soft atmospheric top veil */}
   <div
+    className="hero-atmospheric-veil"
     aria-hidden="true"
     style={{
       position: 'absolute',
@@ -136,9 +145,9 @@ export function HomePage() {
       right: 0,
       height: '220px',
       background:
-        'linear-gradient(to bottom, rgba(145, 66, 116, 0.44) 0%, rgba(240,234,250,0.14) 55%, transparent 100%)',
-      backdropFilter: 'blur(2px)',
-      WebkitBackdropFilter: 'blur(2px)',
+        'linear-gradient(to bottom, rgba(145, 66, 116, 0.18) 0%, rgba(240,234,250,0.06) 55%, transparent 100%)',
+      backdropFilter: 'blur(1px)',
+      WebkitBackdropFilter: 'blur(1px)',
       maskImage:
         'linear-gradient(to bottom, black 0%, black 28%, transparent 100%)',
       WebkitMaskImage:
@@ -153,6 +162,7 @@ export function HomePage() {
 ========================== */}
 
 <div
+  className="hero-content"
   style={{
     position: 'absolute',
     right: '3.5rem',
@@ -165,6 +175,7 @@ export function HomePage() {
 >
   {/* Broad atmospheric fade for readability */}
   <div
+    className="hero-content-glow"
     aria-hidden="true"
     style={{
       position: 'absolute',
@@ -211,6 +222,7 @@ export function HomePage() {
   >
     {/* Badge */}
     <div
+      className="hero-badge"
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -302,6 +314,7 @@ export function HomePage() {
       {/* Get Started */}
       <Link to="/signup">
         <button
+          className="hero-primary-button"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -329,14 +342,10 @@ export function HomePage() {
             letterSpacing: '0.01em',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.background = '#5577C8';
-            e.currentTarget.style.transform =
-              'translateY(-1px)';
+            e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.background = '#6B8DD6';
-            e.currentTarget.style.transform =
-              'translateY(0)';
+            e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
           Get Started
@@ -353,6 +362,7 @@ export function HomePage() {
       {/* Explore Gigs */}
       <Link to="/gigs">
         <button
+          className="hero-secondary-button"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -381,16 +391,11 @@ export function HomePage() {
             letterSpacing: '0.01em',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.background =
-              'rgba(255, 255, 255, 0.62)';
-            e.currentTarget.style.borderColor =
-              'rgba(107, 141, 214, 0.35)';
+            e.currentTarget.style.transform = 'translateY(-1px)';
           }}
+
           onMouseLeave={e => {
-            e.currentTarget.style.background =
-              'rgba(255, 255, 255, 0.48)';
-            e.currentTarget.style.borderColor =
-              'rgba(107, 141, 214, 0.22)';
+            e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
           Explore Gigs
