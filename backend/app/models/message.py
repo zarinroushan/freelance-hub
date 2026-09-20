@@ -13,6 +13,19 @@ class Conversation(Base):
     participant_1_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     participant_2_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
+    # Link the conversation to the accepted gig/application
+    gig_id = Column(
+        Integer,
+        ForeignKey("gigs.id"),
+        nullable=True
+    )
+
+    application_id = Column(
+        Integer,
+        ForeignKey("applications.id"),
+        nullable=True
+    )
+
     last_message_at = Column(DateTime, default=datetime.utcnow)
 
     messages = relationship(

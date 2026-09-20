@@ -9,12 +9,18 @@ interface Conversation {
     id: number;
     participant_1_id: number;
     participant_2_id: number;
-    last_message_at: string;
+    gig_id: number | null;
+    application_id: number | null;
+    last_message_at: string | null;
   };
   other_user: {
     id: number;
     email: string;
   };
+  gig?: {
+  id: number;
+  title: string;
+};
   last_message?: {
     id: number;
     content: string;
@@ -41,15 +47,35 @@ export function MessagesPage() {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
+        const token = getAuthToken();
+
+        if (!token) {
+          console.error('No authentication token found');
+          setLoading(false);
+          return;
+        }
+
         const response = await fetch(`${API_BASE_URL}/messages/conversations`, {
           headers: {
-            'Authorization': `Bearer ${getAuthToken()}`,
+            Authorization: `Bearer ${token}`,
           },
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           setConversations(data);
+        } else {
+          const errorText = await response.text();
+
+          console.error(
+            'Failed to fetch conversations:',
+            response.status,
+            errorText
+          );
+
+          if (response.status === 401) {
+            console.warn('Authentication expired or invalid.');
+          }
         }
       } catch (error) {
         console.error('Error fetching conversations:', error);
@@ -58,31 +84,66 @@ export function MessagesPage() {
       }
     };
 
+    // Fetch immediately
     fetchConversations();
+
+    // Refresh conversation list every 5 seconds
+    const interval = setInterval(fetchConversations, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    if (selectedConversation) {
-      const fetchMessages = async () => {
-        try {
-          const response = await fetch(`${API_BASE_URL}/messages/conversation/${selectedConversation}`, {
-            headers: {
-              'Authorization': `Bearer ${getAuthToken()}`,
-            },
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            setMessages(data);
-          }
-        } catch (error) {
-          console.error('Error fetching messages:', error);
-        }
-      };
+    if (!selectedConversation) return;
 
-      fetchMessages();
-    }
+    const fetchMessages = async () => {
+      try {
+        const token = getAuthToken();
+
+        if (!token) {
+          console.error('No authentication token found');
+          return;
+        }
+
+        const response = await fetch(
+          `${API_BASE_URL}/messages/conversation/${selectedConversation}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setMessages(data);
+        } else {
+          const errorText = await response.text();
+
+          console.error(
+            'Failed to fetch messages:',
+            response.status,
+            errorText
+          );
+
+          if (response.status === 401) {
+            console.warn('Authentication expired or invalid.');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    };
+
+    // Fetch immediately when conversation is selected
+    fetchMessages();
+
+    // Check for new messages every 3 seconds
+    const interval = setInterval(fetchMessages, 3000);
+
+    return () => clearInterval(interval);
   }, [selectedConversation]);
+
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,22 +218,50 @@ export function MessagesPage() {
                   key={conv.conversation.id}
                   onClick={() => setSelectedConversation(conv.conversation.id)}
                   className={`w-full p-4 text-left border-b border-[var(--color-border)] hover:bg-[var(--color-surface-alt)] transition-colors ${
-                    selectedConversation === conv.conversation.id ? 'bg-[var(--color-surface-alt)]' : ''
+                    selectedConversation === conv.conversation.id 
+                      ? 'bg-[var(--color-surface-alt)] border-l-4 border-l-[var(--color-primary)]'
+                      : 'border-l-4 border-l-transparent'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-[var(--color-primary)]/20 rounded-full flex items-center justify-center">
-                      <User size={20} className="text-[var(--color-primary)]" />
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        selectedConversation === conv.conversation.id
+                          ? 'bg-[var(--color-primary)]/20'
+                          : 'bg-[var(--color-primary)]/10'
+                      }`}
+                    >
+                      <User
+                        size={20}
+                        className="text-[var(--color-primary)]"
+                      />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-[var(--color-text)] truncate">
+                    <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+
+                      {/* Person / Email */}
+                      <div className="font-semibold text-[var(--color-text)] text-sm truncate">
                         {conv.other_user?.email || 'User'}
                       </div>
+
+                      {/* Gig Title */}
+                      {conv.gig?.title && (
+                        <div className="max-w-full">
+                          <span className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/25 text-[11px] font-semibold leading-normal min-h-[26px]">
+                            <span className="text-[10px]">▣</span>
+                            <span className="truncate">
+                              {conv.gig.title}
+                            </span>
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Latest Message */}
                       {conv.last_message && (
-                        <div className="text-sm text-[var(--color-text-muted)] truncate">
+                        <div className="text-xs text-[var(--color-text-muted)] font-normal truncate leading-4 max-w-full">
                           {conv.last_message.content}
                         </div>
                       )}
+
                     </div>
                   </div>
                 </button>
@@ -188,7 +277,11 @@ export function MessagesPage() {
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((msg) => {
-                  const isOwn = msg.sender_id === parseInt(localStorage.getItem('user_id') || '0');
+                  const currentUser = JSON.parse(
+                    localStorage.getItem('unigigs_user') || 'null'
+                  );
+
+                  const isOwn = msg.sender_id === Number(currentUser?.id);
                   return (
                     <div
                       key={msg.id}
@@ -241,19 +334,3 @@ export function MessagesPage() {
   );
 }
 
-export async function startConversation(userId: number) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/messages/start/${userId}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${getAuthToken()}`,
-      },
-    });
-
-    if (response.ok) {
-      return await response.json();
-    }
-  } catch (error) {
-    console.error('Error starting conversation:', error);
-  }
-}
