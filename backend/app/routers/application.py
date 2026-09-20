@@ -9,6 +9,7 @@ from app.models.gig import Gig, GigStatus
 from app.models.user import User, UserRole
 from app.models.notification import Notification, NotificationType
 from app.models.contract import Contract, ContractStatus
+from app.models.message import Conversation
 from app.schemas.application import ApplicationCreate, ApplicationResponse
 from app.core.security import get_current_user
 
@@ -181,6 +182,16 @@ def accept_application(application_id: int, current_user: dict = Depends(get_cur
     )
     db.add(contract)
     db.flush()
+
+    # Create a conversation for the accepted application
+    conversation = Conversation(
+        participant_1_id=gig.client_id,
+        participant_2_id=app.freelancer_id,
+        gig_id=gig.id,
+        application_id=app.id,
+    )
+
+    db.add(conversation)
 
     db.add(Notification(
         user_id=app.freelancer_id,
