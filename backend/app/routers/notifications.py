@@ -3,23 +3,13 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.db.database import get_db
 from app.models.notification import Notification
-from app.models.notification import NotificationType as ModelNotificationType
-from app.schemas.notification import NotificationResponse, NotificationType as SchemaNotificationType
+from app.schemas.notification import NotificationResponse
 from app.core.security import get_current_user
 
 router = APIRouter()
 
 
-_VALID_SCHEMA_TYPES = {member.value for member in SchemaNotificationType}
-
-
 def _to_response_schema(notification: Notification) -> NotificationResponse:
-    raw_type = notification.type
-    if isinstance(raw_type, ModelNotificationType):
-        raw_type = raw_type.value
-    if raw_type not in _VALID_SCHEMA_TYPES:
-        raw_type = SchemaNotificationType.APPLICATION_RECEIVED.value
-    notification.type = raw_type
     return NotificationResponse.model_validate(notification)
 
 
@@ -49,6 +39,27 @@ def get_unread_count(
     
     return {"unread_count": unread_count}
 
+@router.patch("/read-all")
+def mark_all_notifications_read(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    user_id = int(current_user["user_id"])
+
+    notifications = db.query(Notification).filter(
+        Notification.user_id == user_id,
+        Notification.is_read == False
+    ).all()
+
+    for notification in notifications:
+        notification.is_read = True
+
+    db.commit()
+
+    return {
+        "message": "All notifications marked as read",
+        "updated_count": len(notifications),
+    }
 
 @router.patch("/{notification_id}/read")
 def mark_notification_read(

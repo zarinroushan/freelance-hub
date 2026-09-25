@@ -20,6 +20,7 @@ import { MessagesPage } from './pages/Messages/MessagesPage';
 import { ContractsPage } from './pages/Contracts/ContractsPage';
 import { SettingsPage } from './pages/Settings/SettingsPage';
 import { GoogleCallbackPage } from './pages/login/GoogleCallbackPage';
+import NotificationsPage from './pages/Notifications/NotificationsPage';
 
 /** Offsets inner-page content below the fixed navbar height (72px). */
 function NavbarPage({ children }: { children: React.ReactNode }) {
@@ -212,6 +213,16 @@ function App() {
                 }
               />
 
+              {/* Notifications */}
+              <Route
+                path="/notifications"
+                element={
+                  <ProtectedRoute>
+                    <NotificationsPage />
+                  </ProtectedRoute>
+                }
+              />
+
             </Routes>
           </div>
         </AuthProvider>
@@ -221,4 +232,4 @@ function App() {
 }
 
 export default App;
-
+

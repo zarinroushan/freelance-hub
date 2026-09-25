@@ -176,6 +176,8 @@ def approve_deliverable(contract_id: int, current_user: dict = Depends(get_curre
         type=NotificationType.PAYMENT_RELEASED,
         title="Payment Released! 🎉",
         message=f"Your payment of ₹{contract.agreed_budget} has been released!",
+        related_entity_type="contract",
+        related_entity_id=contract.id,
     )
     db.add(notification)
     db.add(Notification(

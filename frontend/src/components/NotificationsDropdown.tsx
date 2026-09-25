@@ -20,12 +20,19 @@ export function NotificationsDropdown() {
     const fetchNotifications = async () => {
       try {
         const token = getAuthToken();
+
+        if (!token) return;
+
         const [notifsRes, countRes] = await Promise.all([
           fetch(`${API_BASE_URL}/notifications`, {
-            headers: { 'Authorization': `Bearer ${token}` },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }),
           fetch(`${API_BASE_URL}/notifications/unread-count`, {
-            headers: { 'Authorization': `Bearer ${token}` },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }),
         ]);
 
@@ -43,7 +50,14 @@ export function NotificationsDropdown() {
       }
     };
 
+    // Fetch immediately when component loads
     fetchNotifications();
+
+    // Refresh notifications every 10 seconds
+    const interval = setInterval(fetchNotifications, 10000);
+
+    // Stop the interval when component is removed
+    return () => clearInterval(interval);
   }, []);
 
   const markAsRead = async (id: number) => {

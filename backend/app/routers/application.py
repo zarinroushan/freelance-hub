@@ -49,6 +49,8 @@ def create_application(
         type=NotificationType.APPLICATION_RECEIVED,
         title="New Application",
         message=f"Someone applied to your gig: {gig.title}",
+        related_entity_type="gig",
+        related_entity_id=gig.id,
     )
     db.add(notification)
     
