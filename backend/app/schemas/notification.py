@@ -14,7 +14,7 @@ class NotificationType(str, Enum):
     WORK_APPROVED = "work_approved"
     PAYMENT_RELEASED = "payment_released"
     GIG_POSTED = "gig_posted"
-    MESSAGE_RECEIVED = "message_received"
+    NEW_MESSAGE = "new_message"
     REVIEW_RECEIVED = "review_received"
 
 
@@ -26,6 +26,8 @@ class NotificationResponse(BaseModel):
     message: str
     is_read: bool
     created_at: datetime
-    
+    related_entity_type: Optional[str] = None
+    related_entity_id: Optional[int] = None
+
     class Config:
         from_attributes = True

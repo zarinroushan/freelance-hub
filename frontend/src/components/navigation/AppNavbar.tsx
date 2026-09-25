@@ -3,12 +3,24 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { useTheme } from '../../services/context/ThemeContext';
 import { useAuth } from '../../services/context/AuthContext';
+import { API_BASE_URL, getAuthToken } from '../../services/api';
 import { Menu, X, Bell, ChevronDown, LayoutDashboard, User as UserIcon, Settings, LogOut, CheckCircle, MessageSquare, Clock } from 'lucide-react';
 import './Navbar.css';
 
 interface NavItem {
   label: string;
   path: string;
+}
+
+interface Notification {
+  id: number;
+  type: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  related_entity_type?: string | null;
+  related_entity_id?: number | null;
 }
 
 export const AppNavbar: React.FC = () => {
@@ -21,6 +33,8 @@ export const AppNavbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,10 +45,189 @@ export const AppNavbar: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const token = getAuthToken();
+
+        if (!token) return;
+
+        const [notifsRes, countRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/notifications`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+          fetch(`${API_BASE_URL}/notifications/unread-count`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+        ]);
+
+        if (notifsRes.ok) {
+          const data = await notifsRes.json();
+          setNotifications(data);
+        }
+
+        if (countRes.ok) {
+          const data = await countRes.json();
+          setUnreadCount(data.unread_count);
+        }
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+
+    const interval = setInterval(fetchNotifications, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsProfileMenuOpen(false);
     setIsNotificationOpen(false);
   }, [location.pathname]);
+
+
+  const handleNotificationClick = (notification: Notification) => {
+    try {
+      console.log('🔔 NOTIFICATION CLICKED:', notification);
+      console.log('👤 CURRENT USER:', user);
+      console.log('👤 USER ROLE:', user?.role);
+      console.log('📌 NOTIFICATION TYPE:', notification.type);
+      console.log('🔗 RELATED ENTITY TYPE:', notification.related_entity_type);
+      console.log('🔗 RELATED ENTITY ID:', notification.related_entity_id);
+
+      // Close notification dropdown immediately
+      setIsNotificationOpen(false);
+
+      // Update notification state locally
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notification.id
+            ? { ...n, is_read: true }
+            : n
+        )
+      );
+
+      setUnreadCount((prev) =>
+        Math.max(0, prev - (notification.is_read ? 0 : 1))
+      );
+
+      // ==========================================
+      // DETERMINE WHERE THE NOTIFICATION SHOULD GO
+      // ==========================================
+
+      let targetPath = '/notifications';
+
+      // Application received notifications always route directly to the gig applications page
+      if (notification.type === 'application_received') {
+        if (notification.related_entity_id) {
+          targetPath = `/applications/${notification.related_entity_id}`;
+        } else {
+          targetPath = '/dashboard';
+        }
+      }
+      // ==========================================
+      // STUDENT / FREELANCER
+      // ==========================================
+      else if (user?.role === 'student') {
+        switch (notification.type) {
+          case 'application_accepted':
+          case 'application_rejected':
+            // Student should see their applications
+            targetPath = '/applications';
+            break;
+
+          case 'new_message':
+            targetPath = '/messages';
+            break;
+
+          case 'work_submitted':
+          case 'work_approved':
+          case 'payment_released':
+          case 'contract_created':
+            targetPath = '/contracts';
+            break;
+
+          case 'gig_posted':
+            targetPath = notification.related_entity_id
+              ? `/gigs/${notification.related_entity_id}`
+              : '/gigs';
+            break;
+
+          case 'review_received':
+            targetPath = '/profile';
+            break;
+
+          default:
+            targetPath = '/notifications';
+            break;
+        }
+      }
+
+      // ==========================================
+      // CLIENT
+      // ==========================================
+      else if (user?.role === 'client') {
+        switch (notification.type) {
+          case 'application_received':
+            if (notification.related_entity_id) {
+              targetPath = `/applications/${notification.related_entity_id}`;
+            } else {
+              targetPath = '/dashboard';
+            }
+            break;
+
+          case 'new_message':
+            targetPath = '/messages';
+            break;
+
+          case 'work_submitted':
+          case 'work_approved':
+          case 'payment_released':
+          case 'contract_created':
+            targetPath = '/contracts';
+            break;
+
+          case 'review_received':
+            targetPath = '/profile';
+            break;
+
+          default:
+            targetPath = '/notifications';
+            break;
+        }
+      }
+
+      console.log('🚀 FINAL TARGET PATH:', targetPath);
+
+      // ==========================================
+      // NAVIGATE IMMEDIATELY
+      // ==========================================
+      navigate(targetPath);
+
+      console.log('✅ navigate() CALLED');
+
+      // Mark notification as read in background without blocking navigation
+      const token = getAuthToken();
+      if (token && !notification.is_read) {
+        fetch(`${API_BASE_URL}/notifications/${notification.id}/read`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }).catch((err) => {
+          console.error('Error marking notification as read in background:', err);
+        });
+      }
+    } catch (error) {
+      console.error('❌ ERROR HANDLING NOTIFICATION:', error);
+    }
+  };
 
   const getNavItems = (): NavItem[] => {
     if (!user) return [];
@@ -71,6 +264,36 @@ export const AppNavbar: React.FC = () => {
   const getAvatarInitial = () => {
     if (!user?.email) return 'U';
     return user.email.charAt(0).toUpperCase();
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const token = getAuthToken();
+
+      if (!token) return;
+
+      const response = await fetch(`${API_BASE_URL}/notifications/read-all`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to mark notifications as read');
+      }
+
+      setNotifications((currentNotifications) =>
+        currentNotifications.map((notification) => ({
+          ...notification,
+          is_read: true,
+        }))
+      );
+
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
   };
 
   const handleLogout = async () => {
@@ -126,59 +349,77 @@ export const AppNavbar: React.FC = () => {
               aria-label="Notifications"
             >
               <Bell size={20} />
-              <span className="navbar__badge">3</span>
+              {unreadCount > 0 && (
+                <span className="navbar__badge">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
             </button>
 
             {isNotificationOpen && (
               <div className="navbar__dropdown navbar__dropdown--notifications">
                 <div className="navbar__dropdown-header">
                   <h4>Notifications</h4>
-                  <button
-                    type="button"
-                    className="navbar__dropdown-action"
-                    onClick={() => setIsNotificationOpen(false)}
-                  >
-                    Mark all as read
-                  </button>
+                  {unreadCount > 0 && (
+                    <button
+                      type="button"
+                      className="navbar__dropdown-action"
+                      onClick={markAllAsRead}
+                    >
+                      Mark all as read
+                    </button>
+                  )}
                 </div>
 
                 <div className="navbar__dropdown-content">
-                  <div className="notification-item notification-item--unread">
-                    <div className="notification-item__icon">
-                      <CheckCircle size={16} />
+                  {notifications.length === 0 ? (
+                    <div className="notification-item">
+                      <div className="notification-item__content">
+                        <p className="notification-item__message">
+                          No notifications
+                        </p>
+                      </div>
                     </div>
-                    <div className="notification-item__content">
-                      <p className="notification-item__title">Application Accepted</p>
-                      <p className="notification-item__message">Your UI Designer proposal was accepted!</p>
-                      <span className="notification-item__time">2h ago</span>
-                    </div>
-                  </div>
+                  ) : (
+                    notifications.slice(0, 5).map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`notification-item ${
+                          !notification.is_read ? 'notification-item--unread' : ''
+                        }`}
+                        onClick={() => handleNotificationClick(notification)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="notification-item__icon">
+                          {notification.type === 'application_accepted' ? (
+                            <CheckCircle size={16} />
+                          ) : notification.type === 'new_message' ? (
+                            <MessageSquare size={16} />
+                          ) : (
+                            <Clock size={16} />
+                          )}
+                        </div>
 
-                  <div className="notification-item notification-item--unread">
-                    <div className="notification-item__icon">
-                      <MessageSquare size={16} />
-                    </div>
-                    <div className="notification-item__content">
-                      <p className="notification-item__title">New Message</p>
-                      <p className="notification-item__message">Client sent you project details</p>
-                      <span className="notification-item__time">5h ago</span>
-                    </div>
-                  </div>
+                        <div className="notification-item__content">
+                          <p className="notification-item__title">
+                            {notification.title}
+                          </p>
 
-                  <div className="notification-item">
-                    <div className="notification-item__icon">
-                      <Clock size={16} />
-                    </div>
-                    <div className="notification-item__content">
-                      <p className="notification-item__title">Gig Reminder</p>
-                      <p className="notification-item__message">Project milestone due tomorrow</p>
-                      <span className="notification-item__time">1d ago</span>
-                    </div>
-                  </div>
+                          <p className="notification-item__message">
+                            {notification.message}
+                          </p>
+
+                          <span className="notification-item__time">
+                            {new Date(notification.created_at).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 <div className="navbar__dropdown-footer">
-                  <Link to="/messages">View all notifications</Link>
+                  <Link to="/notifications">View all notifications</Link>
                 </div>
               </div>
             )}

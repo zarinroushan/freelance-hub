@@ -10,6 +10,10 @@ const getApiBaseUrl = (): string => {
 
 export const API_BASE_URL = getApiBaseUrl();
 
+export const getAuthToken = (): string | null => {
+  return localStorage.getItem('unigigs_token') || localStorage.getItem('token');
+};
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -17,20 +21,18 @@ const api = axios.create({
   },
 });
 
-export const getAuthToken = (): string | null => {
-  return localStorage.getItem('unigigs_token') || localStorage.getItem('token');
-};
 
-// Add token to requests
+// Add authentication token to every request
 api.interceptors.request.use((config) => {
   const token = getAuthToken();
   if (token) {
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Handle errors
+// Handle authentication errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
