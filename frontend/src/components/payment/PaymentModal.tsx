@@ -38,11 +38,9 @@ export function PaymentModal({ contractId, amount, onClose, onSuccess }: Payment
   const [cardHolder, setCardHolder] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvv, setCvv] = useState('');
-  const [showCvv, setShowCvv] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const [error, setError] = useState('');
   const [processingMsg, setProcessingMsg] = useState('');
-  const [paymentIntentId, setPaymentIntentId] = useState('');
   const [txnId, setTxnId] = useState('');
 
   const cardType = detectCardType(cardNumber);
@@ -114,7 +112,6 @@ export function PaymentModal({ contractId, amount, onClose, onSuccess }: Payment
       }
 
       const initiateData = await initiateRes.json();
-      setPaymentIntentId(initiateData.payment_intent_id);
 
       setProcessingMsg('Verifying card details...');
       await delay(800);
@@ -278,7 +275,7 @@ export function PaymentModal({ contractId, amount, onClose, onSuccess }: Payment
                   <div className="payment-input-wrap">
                     <input
                       id="payment-cvv"
-                      type={showCvv ? 'text' : 'password'}
+                      type="password"
                       inputMode="numeric"
                       placeholder="•••"
                       value={cvv}

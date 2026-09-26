@@ -50,7 +50,6 @@ export function ContractsPage() {
   const [showRevisionInput, setShowRevisionInput] = useState(false);
   const [revisionFeedback, setRevisionFeedback] = useState('');
   const [submittingRevision, setSubmittingRevision] = useState(false);
-  const [approvingPayment, setApprovingPayment] = useState(false);
   const [paymentModalContract, setPaymentModalContract] = useState<Contract | null>(null);
 
   // Review Form State
