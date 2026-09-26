@@ -342,19 +342,27 @@ export function GigApplicationsPage() {
                       </div>
                     )}
 
-                    {/* Portfolio Links */}
-                    {app.portfolio_links && (
+                    {/* Supporting Material */}
+                    {(app.resume_url || app.portfolio_url || app.portfolio_links || app.additional_link) && (
                       <div>
-                        <span className="text-xs font-semibold text-[var(--color-text-muted)] uppercase block mb-1">Portfolio</span>
-                        <a
-                          href={app.portfolio_links}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-[var(--color-primary)] font-medium hover:underline text-sm"
-                        >
-                          <ExternalLink size={16} />
-                          {app.portfolio_links}
-                        </a>
+                        <span className="text-xs font-semibold text-[var(--color-text-muted)] uppercase block mb-2">Supporting Documents &amp; Portfolio</span>
+                        <div className="flex flex-wrap gap-x-5 gap-y-2">
+                          {app.resume_url && (
+                            <a href={app.resume_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[var(--color-primary)] font-medium hover:underline text-sm">
+                              <FileText size={16} /> Resume / Document
+                            </a>
+                          )}
+                          {(app.portfolio_url || app.portfolio_links) && (
+                            <a href={app.portfolio_url || app.portfolio_links} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[var(--color-primary)] font-medium hover:underline text-sm">
+                              <ExternalLink size={16} /> Portfolio
+                            </a>
+                          )}
+                          {app.additional_link && (
+                            <a href={app.additional_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[var(--color-primary)] font-medium hover:underline text-sm">
+                              <ExternalLink size={16} /> Additional Link
+                            </a>
+                          )}
+                        </div>
                       </div>
                     )}
 

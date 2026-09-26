@@ -9,6 +9,8 @@ from app.core.security import get_current_user
 
 router = APIRouter()
 logger = logging.getLogger("unigigs.upload")
+APPLICATION_RESUME_FOLDER = "unigigs/application-resumes"
+APPLICATION_DOCUMENT_MAX_BYTES = 10 * 1024 * 1024
 
 # Try importing cloudinary SDK
 try:
@@ -108,7 +110,25 @@ async def upload_file(
     """
     Upload a general file (PDF, DOCX, ZIP, etc.) to Cloudinary (or fallback).
     """
-    content = await file.read()
+    is_application_resume = folder == APPLICATION_RESUME_FOLDER
+    if is_application_resume:
+        extension = os.path.splitext(file.filename or "")[1].lower()
+        if extension not in {".pdf", ".doc", ".docx"}:
+            raise HTTPException(status_code=400, detail="Resume must be a PDF, DOC, or DOCX document")
+
+    content = await file.read(APPLICATION_DOCUMENT_MAX_BYTES + 1 if is_application_resume else -1)
+    if is_application_resume:
+        if len(content) > APPLICATION_DOCUMENT_MAX_BYTES:
+            raise HTTPException(status_code=400, detail="Resume must be 10 MB or smaller")
+        signatures = {
+            ".pdf": content.startswith(b"%PDF-"),
+            ".doc": content.startswith(bytes.fromhex("D0CF11E0A1B11AE1")),
+            ".docx": content.startswith(bytes.fromhex("504B0304")),
+        }
+        if not signatures[extension]:
+            raise HTTPException(status_code=400, detail="The uploaded file does not match its document type")
+        if not configure_cloudinary():
+            raise HTTPException(status_code=503, detail="Document storage is not configured")
 
     if configure_cloudinary():
         try:
