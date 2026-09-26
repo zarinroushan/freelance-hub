@@ -57,15 +57,15 @@ UniGigs is a student-focused freelance marketplace that connects students offeri
                     ┌─────────────────────────────┐
                     │       React Frontend        │
                     │     TypeScript + Vite       │
-                    │          Vercel              │
+                    │          Vercel             │
                     └─────────────┬───────────────┘
                                   │
                                   │ REST API
                                   │ JSON + JWT
                                   ▼
                     ┌─────────────────────────────┐
-                    │       FastAPI Backend        │
-                    │           Render             │
+                    │       FastAPI Backend       │
+                    │           Render            │
                     │                             │
                     │  ┌───────────────────────┐  │
                     │  │ Authentication / JWT  │  │
