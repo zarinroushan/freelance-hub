@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
 from enum import Enum
+from urllib.parse import urlparse
 
 
 class ApplicationStatus(str, Enum):
@@ -17,6 +18,20 @@ class ApplicationCreate(BaseModel):
     proposed_price: int = Field(..., gt=0)
     delivery_days: int = Field(..., gt=0)
     cover_letter: str = Field(..., min_length=20, max_length=3000)
+    resume_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
+    additional_link: Optional[str] = None
+
+    @field_validator("portfolio_url", "additional_link")
+    @classmethod
+    def validate_http_url(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return value
+        value = value.strip()
+        parsed = urlparse(value)
+        if len(value) > 2048 or parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise ValueError("Enter a valid http or https URL")
+        return value
 
 
 class FreelancerProfileResponse(BaseModel):
@@ -62,6 +77,9 @@ class ApplicationResponse(BaseModel):
     delivery_days: int
     cover_letter: str
     portfolio_links: Optional[str] = None
+    resume_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
+    additional_link: Optional[str] = None
     status: ApplicationStatus
     created_at: datetime
     freelancer: Optional[FreelancerUserResponse] = None

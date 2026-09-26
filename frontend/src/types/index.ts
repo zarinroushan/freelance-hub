@@ -44,6 +44,15 @@ export interface Gig {
   requirements: string;
   deliverables: string;
   attachments?: GigAttachment[];
+  client?: {
+    id: number;
+    created_at: string;
+    profile?: {
+      full_name?: string;
+      bio?: string;
+      avatar_url?: string;
+    };
+  };
 }
 
 export interface Application {
@@ -54,6 +63,9 @@ export interface Application {
   delivery_days?: number;
   cover_letter?: string;
   portfolio_links?: string;
+  resume_url?: string;
+  portfolio_url?: string;
+  additional_link?: string;
   status: 'pending' | 'accepted' | 'rejected' | 'withdrawn';
   created_at: string;
   freelancer?: {

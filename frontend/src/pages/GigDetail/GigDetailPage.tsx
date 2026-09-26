@@ -3,11 +3,12 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/context/AuthContext';
 import { gigService } from '../../services/gigs';
 import { API_BASE_URL, getAuthToken } from '../../services/api';
+import { APPLICATION_RESUME_FOLDER, uploadFile } from '../../services/upload';
 import type { Gig } from '../../types';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { ArrowLeft, Clock, User, CheckCircle, Eye, FileText, Link as LinkIcon, Download } from 'lucide-react';
+import { ArrowLeft, Clock, User, Eye, FileText, Link as LinkIcon, Download } from 'lucide-react';
 
 export function GigDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -283,18 +284,29 @@ export function GigDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-[var(--color-primary)]/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <User size={28} className="text-[var(--color-primary)]" />
+                  <div className="w-14 h-14 bg-[var(--color-primary)]/20 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {gig.client?.profile?.avatar_url ? (
+                      <img src={gig.client.profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <User size={28} className="text-[var(--color-primary)]" />
+                    )}
                   </div>
                   <div>
-                    <div className="font-semibold text-[var(--color-text)]">College Event Team</div>
-                    <div className="text-sm text-[var(--color-text-muted)]">Member since 2025</div>
+                    <div className="font-semibold text-[var(--color-text)]">
+                      {gig.client?.profile?.full_name || `Client #${gig.client_id}`}
+                    </div>
+                    {gig.client?.created_at && (
+                      <div className="text-sm text-[var(--color-text-muted)]">
+                        Member since {new Date(gig.client.created_at).getFullYear()}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center justify-between text-sm pt-4 border-t border-[var(--color-border)]">
-                  <span className="text-[var(--color-text-muted)]">Payment verified</span>
-                  <CheckCircle size={18} className="text-[var(--color-success)]" />
-                </div>
+                {gig.client?.profile?.bio && (
+                  <p className="text-sm text-[var(--color-text-muted)] pt-4 border-t border-[var(--color-border)]">
+                    {gig.client.profile.bio}
+                  </p>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -315,6 +327,10 @@ function ApplyModal({ gigId, onClose }: { gigId: number; onClose: () => void }) 
   const [proposedPrice, setProposedPrice] = useState('');
   const [deliveryDays, setDeliveryDays] = useState('');
   const [coverLetter, setCoverLetter] = useState('');
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [portfolioUrl, setPortfolioUrl] = useState('');
+  const [additionalLink, setAdditionalLink] = useState('');
+  const [resumeError, setResumeError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -323,6 +339,9 @@ function ApplyModal({ gigId, onClose }: { gigId: number; onClose: () => void }) 
     setLoading(true);
 
     try {
+      const resumeUrl = resumeFile
+        ? (await uploadFile(resumeFile, APPLICATION_RESUME_FOLDER)).url
+        : undefined;
       const response = await fetch(`${API_BASE_URL}/applications`, {
         method: 'POST',
         headers: {
@@ -334,6 +353,9 @@ function ApplyModal({ gigId, onClose }: { gigId: number; onClose: () => void }) 
           proposed_price: Number(proposedPrice),
           delivery_days: Number(deliveryDays),
           cover_letter: coverLetter,
+          resume_url: resumeUrl,
+          portfolio_url: portfolioUrl.trim() || null,
+          additional_link: additionalLink.trim() || null,
         }),
       });
 
@@ -431,6 +453,66 @@ function ApplyModal({ gigId, onClose }: { gigId: number; onClose: () => void }) 
               className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent resize-none"
             />
           </div>
+
+          <section className="space-y-4 border-t border-[var(--color-border)] pt-4">
+            <h3 className="text-sm font-bold text-[var(--color-text)]">Supporting Documents &amp; Portfolio</h3>
+            <div>
+              <label htmlFor="application-resume" className="block text-sm font-semibold text-[var(--color-text)] mb-2">
+                Upload Resume / PDF (optional)
+              </label>
+              <input
+                id="application-resume"
+                type="file"
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={(event) => {
+                  const file = event.target.files?.[0] || null;
+                  if (file && file.size > 10 * 1024 * 1024) {
+                    setResumeFile(null);
+                    setResumeError('Choose a document no larger than 10 MB.');
+                    event.target.value = '';
+                    return;
+                  }
+                  if (file && !/\.(pdf|doc|docx)$/i.test(file.name)) {
+                    setResumeFile(null);
+                    setResumeError('Choose a PDF, DOC, or DOCX document.');
+                    event.target.value = '';
+                    return;
+                  }
+                  setResumeFile(file);
+                  setResumeError('');
+                }}
+                className="w-full text-sm text-[var(--color-text)] file:mr-3 file:rounded-md file:border-0 file:bg-[var(--color-primary)]/10 file:px-3 file:py-2 file:font-semibold file:text-[var(--color-primary)]"
+              />
+              {resumeError && <p className="mt-1 text-sm text-[var(--color-error)]">{resumeError}</p>}
+              {resumeFile && <p className="mt-1 text-xs text-[var(--color-text-muted)]">{resumeFile.name}</p>}
+            </div>
+            <div>
+              <label htmlFor="application-portfolio" className="block text-sm font-semibold text-[var(--color-text)] mb-2">
+                Portfolio Link (optional)
+              </label>
+              <input
+                id="application-portfolio"
+                type="url"
+                value={portfolioUrl}
+                onChange={(event) => setPortfolioUrl(event.target.value)}
+                placeholder="https://myportfolio.com"
+                className="w-full px-4 h-11 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label htmlFor="application-additional-link" className="block text-sm font-semibold text-[var(--color-text)] mb-2">
+                Additional Link (optional)
+              </label>
+              <input
+                id="application-additional-link"
+                type="url"
+                value={additionalLink}
+                onChange={(event) => setAdditionalLink(event.target.value)}
+                placeholder="https://github.com/username"
+                className="w-full px-4 h-11 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+              />
+            </div>
+          </section>
 
           {/* Actions */}
           <div className="flex gap-3 pt-4 border-t border-[var(--color-border)]">

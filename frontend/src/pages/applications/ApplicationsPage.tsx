@@ -14,6 +14,10 @@ interface Application {
   proposed_price: number;
   status: 'pending' | 'accepted' | 'rejected' | 'withdrawn';
   created_at: string;
+  resume_url?: string;
+  portfolio_url?: string;
+  portfolio_links?: string;
+  additional_link?: string;
   gig?: {
     title: string;
     budget: number;
@@ -268,6 +272,26 @@ export function ApplicationsPage() {
                           )}
                         </div>
                       </div>
+
+                      {(app.resume_url || app.portfolio_url || app.portfolio_links || app.additional_link) && (
+                        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                          {app.resume_url && (
+                            <a href={app.resume_url} target="_blank" rel="noopener noreferrer" className="font-medium text-[var(--color-primary)] hover:underline">
+                              Resume / Document
+                            </a>
+                          )}
+                          {(app.portfolio_url || app.portfolio_links) && (
+                            <a href={app.portfolio_url || app.portfolio_links} target="_blank" rel="noopener noreferrer" className="font-medium text-[var(--color-primary)] hover:underline">
+                              Portfolio
+                            </a>
+                          )}
+                          {app.additional_link && (
+                            <a href={app.additional_link} target="_blank" rel="noopener noreferrer" className="font-medium text-[var(--color-primary)] hover:underline">
+                              Additional Link
+                            </a>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Actions */}

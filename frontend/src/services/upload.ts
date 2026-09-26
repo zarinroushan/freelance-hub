@@ -1,5 +1,7 @@
 import api from './api';
 
+export const APPLICATION_RESUME_FOLDER = 'unigigs/application-resumes';
+
 export interface UploadResponse {
   url: string;
   public_id?: string;
@@ -41,6 +43,7 @@ export async function uploadFile(
   formData.append('folder', folder);
 
   const response = await api.post<UploadResponse>('/upload/file', formData, {
+    params: folder === APPLICATION_RESUME_FOLDER ? { folder } : undefined,
     headers: {
       'Content-Type': 'multipart/form-data',
     },

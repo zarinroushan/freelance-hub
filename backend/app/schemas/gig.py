@@ -31,6 +31,24 @@ class AttachmentResponse(BaseModel):
         from_attributes = True
 
 
+class GigClientProfileResponse(BaseModel):
+    full_name: Optional[str] = None
+    bio: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class GigClientResponse(BaseModel):
+    id: int
+    created_at: datetime
+    profile: Optional[GigClientProfileResponse] = None
+
+    class Config:
+        from_attributes = True
+
+
 class GigCreate(BaseModel):
     title: str = Field(..., min_length=5, max_length=200)
     description: str = Field(..., min_length=20, max_length=5000)
@@ -66,6 +84,7 @@ class GigResponse(BaseModel):
     application_count: int = 0
     created_at: datetime
     attachments: Optional[List[AttachmentResponse]] = []
+    client: Optional[GigClientResponse] = None
     
     class Config:
         from_attributes = True
