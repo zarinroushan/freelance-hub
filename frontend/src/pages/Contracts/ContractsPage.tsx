@@ -5,6 +5,7 @@ import { uploadFile } from '../../services/upload';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Briefcase, Clock, DollarSign, CheckCircle, Package, Upload, Download, FileText, AlertCircle, RefreshCw, X } from 'lucide-react';
+import { PaymentModal } from '../../components/payment/PaymentModal';
 
 interface DeliverableItem {
   id: number;
@@ -49,7 +50,7 @@ export function ContractsPage() {
   const [showRevisionInput, setShowRevisionInput] = useState(false);
   const [revisionFeedback, setRevisionFeedback] = useState('');
   const [submittingRevision, setSubmittingRevision] = useState(false);
-  const [approvingPayment, setApprovingPayment] = useState(false);
+  const [paymentModalContract, setPaymentModalContract] = useState<Contract | null>(null);
 
   // Review Form State
   const [reviewRating, setReviewRating] = useState(5);
@@ -258,31 +259,15 @@ export function ContractsPage() {
   };
 
   // ── Client Approve Work & Pay ──────────────────────────────────────
-  const handleApproveWork = async (contractId: number) => {
-    setApprovingPayment(true);
+  const handleApproveWork = (contract: Contract) => {
+    setPaymentModalContract(contract);
+  };
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/contracts/${contractId}/approve`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-        },
-      });
-
-      if (response.ok) {
-        setStatusBanner({ type: 'success', msg: 'Work approved! Payment released to freelancer. 🎉' });
-        setViewSubmissionContract(null);
-        await fetchContracts();
-      } else {
-        const errorData = await response.json();
-        setStatusBanner({ type: 'error', msg: errorData.detail || 'Failed to approve work.' });
-      }
-    } catch (error) {
-      console.error('Error approving:', error);
-      setStatusBanner({ type: 'error', msg: 'Failed to approve work. Please try again.' });
-    } finally {
-      setApprovingPayment(false);
-    }
+  const handlePaymentSuccess = async () => {
+    setStatusBanner({ type: 'success', msg: 'Payment released to freelancer! 🎉 Contract marked complete.' });
+    setViewSubmissionContract(null);
+    setPaymentModalContract(null);
+    await fetchContracts();
   };
 
   // ── Submit Rating & Review ─────────────────────────────────────────
@@ -561,9 +546,9 @@ export function ContractsPage() {
 
       {/* ── MODAL 1: Freelancer Work Submission Modal ────────────────────── */}
       {submitModalContract && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--color-surface)] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-[var(--color-border)]">
-            <div className="flex items-center justify-between p-6 border-b border-[var(--color-border)]">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[1100] p-4">
+          <div className="bg-[var(--color-surface)] rounded-2xl shadow-2xl w-full max-w-lg max-h-[calc(100vh-2rem)] flex flex-col overflow-hidden border border-[var(--color-border)]">
+            <div className="flex items-center justify-between p-6 border-b border-[var(--color-border)] flex-shrink-0">
               <h2 className="text-xl font-bold text-[var(--color-text)] flex items-center gap-2">
                 <Upload size={20} className="text-[var(--color-primary)]" />
                 Submit Contract Work
@@ -577,7 +562,7 @@ export function ContractsPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmitWork} className="p-6 space-y-5">
+            <form onSubmit={handleSubmitWork} className="p-6 space-y-5 overflow-y-auto">
               {/* Field 1: Work Details / Description */}
               <div>
                 <label className="block text-sm font-semibold text-[var(--color-text)] mb-2">
@@ -644,9 +629,9 @@ export function ContractsPage() {
 
       {/* ── MODAL 2: Client View Submission Modal ──────────────────────── */}
       {viewSubmissionContract && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--color-surface)] rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden border border-[var(--color-border)]">
-            <div className="flex items-center justify-between p-6 border-b border-[var(--color-border)]">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[1100] p-4">
+          <div className="bg-[var(--color-surface)] rounded-2xl shadow-2xl w-full max-w-xl max-h-[calc(100vh-2rem)] flex flex-col overflow-hidden border border-[var(--color-border)]">
+            <div className="flex items-center justify-between p-6 border-b border-[var(--color-border)] flex-shrink-0">
               <h2 className="text-xl font-bold text-[var(--color-text)] flex items-center gap-2">
                 <FileText size={20} className="text-[var(--color-primary)]" />
                 Submitted Work for Review
@@ -660,7 +645,7 @@ export function ContractsPage() {
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-6 overflow-y-auto">
               {/* Submission Content */}
               {viewSubmissionContract.deliverables && viewSubmissionContract.deliverables.length > 0 ? (
                 viewSubmissionContract.deliverables.map((del, idx) => {
@@ -757,17 +742,26 @@ export function ContractsPage() {
 
                 <Button
                   type="button"
-                  onClick={() => handleApproveWork(viewSubmissionContract.id)}
-                  disabled={approvingPayment}
+                  onClick={() => handleApproveWork(viewSubmissionContract)}
                   fullWidth
                 >
                   <CheckCircle size={16} className="mr-2" />
-                  {approvingPayment ? 'Approving...' : 'Approve & Release Payment'}
+                  Approve &amp; Release Payment
                 </Button>
               </div>
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Payment Modal ─────────────────────────────────────────────── */}
+      {paymentModalContract && (
+        <PaymentModal
+          contractId={paymentModalContract.id}
+          amount={paymentModalContract.agreed_budget}
+          onClose={() => setPaymentModalContract(null)}
+          onSuccess={handlePaymentSuccess}
+        />
       )}
     </div>
   );

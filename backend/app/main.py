@@ -22,6 +22,7 @@ from app.routers import (
     reviews,
     notifications,
     upload,
+    payments,
 )
 
 app = FastAPI(
@@ -121,6 +122,13 @@ app.include_router(
     upload.router,
     prefix="/api/upload",
     tags=["Uploads"]
+)
+
+
+app.include_router(
+    payments.router,
+    prefix="/api/payments",
+    tags=["Payments"]
 )
 
 
