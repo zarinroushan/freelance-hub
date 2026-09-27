@@ -76,6 +76,7 @@ interface Profile {
 
 interface Review {
   id: number;
+  gig_title?: string;
   rating: number;
   comment?: string;
   created_at: string;
@@ -536,6 +537,11 @@ export function ProfilePage() {
                       {review.comment && (
                         <p className="text-sm text-[var(--color-text)] mt-1">
                           {review.comment}
+                        </p>
+                      )}
+                      {review.gig_title && (
+                        <p className="text-xs text-[var(--color-text-muted)] mt-1">
+                          Job: {review.gig_title}
                         </p>
                       )}
                       <p className="text-xs text-[var(--color-text-muted)] mt-1">
