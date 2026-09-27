@@ -489,7 +489,7 @@ export function ContractsPage() {
                   {/* Student Review Button */}
                   {user?.role === 'student' &&
                     contract.freelancer_id === user.id &&
-                    contract.status === 'completed' && (
+                    contract.deliverables?.some((deliverable) => Boolean(deliverable.submitted_at)) && (
                       contract.reviewed_by_me ? (
                         <span className="inline-flex items-center text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
                           <CheckCircle size={14} className="mr-1.5" /> Review Submitted
@@ -499,7 +499,7 @@ export function ContractsPage() {
                           variant="secondary"
                           onClick={() => setReviewingId(reviewingId === contract.id ? null : contract.id)}
                         >
-                          Leave a Review
+                          Review Client
                         </Button>
                       )
                     )}
@@ -523,18 +523,18 @@ export function ContractsPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-[var(--color-text)] mb-1">Feedback Comment</label>
+                      <label className="block text-sm font-semibold text-[var(--color-text)] mb-1">Feedback for Client</label>
                       <textarea
                         value={reviewComment}
                         onChange={(e) => setReviewComment(e.target.value)}
                         maxLength={2000}
                         rows={3}
-                        placeholder="Share your experience working on this gig..."
+                        placeholder="Share your experience working with this client..."
                         className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-[var(--color-text)] resize-none"
                       />
                     </div>
                     <Button onClick={() => handleReview(contract.id)} disabled={reviewLoading}>
-                      {reviewLoading ? 'Submitting...' : 'Submit Review'}
+                      {reviewLoading ? 'Submitting...' : 'Submit Feedback'}
                     </Button>
                   </div>
                 )}
