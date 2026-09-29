@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.db.database import Base
@@ -6,12 +6,14 @@ from app.db.database import Base
 
 class Review(Base):
     __tablename__ = "reviews"
+    __table_args__ = (
+        UniqueConstraint("contract_id", "reviewer_id", name="uq_reviews_contract_reviewer"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     contract_id = Column(
         Integer,
         ForeignKey("contracts.id"),
-        unique=True,
         nullable=False
     )
     reviewer_id = Column(

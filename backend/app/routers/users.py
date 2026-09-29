@@ -5,13 +5,64 @@ from app.db.database import get_db
 from app.models.user import User, Profile, UserRole
 from app.models.skill import Skill, UserSkill
 from app.models.portfolio import PortfolioItem
-from app.models.contract import Contract
+from app.models.contract import Contract, ContractStatus
 from app.models.review import Review
+from app.models.payment import Payment, PaymentStatus
 from app.schemas.user import ProfileCreate, ProfileUpdate, ProfileResponse
 from app.core.security import get_current_user
 from sqlalchemy import func
 
 router = APIRouter()
+
+
+def _get_profile_stats(user: User, db: Session) -> dict:
+    contract_owner_column = (
+        Contract.freelancer_id if user.role == UserRole.STUDENT else Contract.client_id
+    )
+    completed_count = db.query(func.count(Contract.id)).filter(
+        contract_owner_column == user.id,
+        Contract.status == ContractStatus.COMPLETED,
+    ).scalar() or 0
+
+    received_from_client = user.role == UserRole.STUDENT
+    received_reviews = Review.reviewed_id == user.id
+    rating_direction = Review.is_from_client.is_(received_from_client)
+    average_rating = db.query(func.avg(Review.rating)).filter(
+        received_reviews,
+        rating_direction,
+    ).scalar()
+    total_reviews = db.query(func.count(Review.id)).filter(
+        received_reviews,
+        rating_direction,
+    ).scalar() or 0
+
+    total_earnings = 0
+    if user.role == UserRole.STUDENT:
+        total_earnings = db.query(func.coalesce(func.sum(Payment.amount), 0)).join(
+            Contract, Payment.contract_id == Contract.id
+        ).filter(
+            Payment.recipient_id == user.id,
+            Payment.status == PaymentStatus.RELEASED,
+            Contract.freelancer_id == user.id,
+            Contract.status == ContractStatus.COMPLETED,
+        ).scalar() or 0
+
+    return {
+        "completed_gigs_count": completed_count,
+        "average_rating": round(float(average_rating), 1) if average_rating is not None else 0,
+        "total_earnings": total_earnings,
+        "total_reviews": total_reviews,
+    }
+
+
+def _profile_response(profile: Profile, stats: dict) -> dict:
+    result = ProfileResponse.model_validate(profile).model_dump()
+    result.update({
+        "completed_gigs_count": stats["completed_gigs_count"],
+        "average_rating": stats["average_rating"],
+        "total_earnings": stats["total_earnings"],
+    })
+    return result
 
 
 @router.get("/me/stats")
@@ -22,44 +73,33 @@ def get_my_stats(current_user: dict = Depends(get_current_user), db: Session = D
         raise HTTPException(status_code=404, detail="User not found")
     
     from app.models.gig import Gig, GigStatus
-    from app.models.contract import ContractStatus
+    stats = _get_profile_stats(user, db)
 
     if user.role == UserRole.STUDENT:
         active = db.query(Contract).filter(
             Contract.freelancer_id == user_id,
             Contract.status.in_([ContractStatus.ACTIVE, "active", "ACTIVE", ContractStatus.SUBMITTED, "submitted", "SUBMITTED", ContractStatus.REVISION_REQUESTED, "revision_requested", "REVISION_REQUESTED"])
         ).count()
-        completed_contracts = db.query(Contract).filter(
-            Contract.freelancer_id == user_id,
-            Contract.status.in_([ContractStatus.COMPLETED, "completed", "COMPLETED"])
-        ).all()
-        completed_count = len(completed_contracts)
-        total_earned = sum(c.agreed_budget for c in completed_contracts)
-        reviews = db.query(Review).filter(Review.reviewed_id == user_id).all()
-        avg_rating = round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else None
-
         return {
             "role": "student",
             "active_contracts": active,
-            "completed_contracts": completed_count,
-            "total_earned": total_earned,
-            "average_rating": avg_rating,
+            "completed_contracts": stats["completed_gigs_count"],
+            "total_earned": stats["total_earnings"],
+            "average_rating": stats["average_rating"] if stats["total_reviews"] else None,
         }
     else:
         active_gigs = db.query(Gig).filter(Gig.client_id == user_id, Gig.status == GigStatus.OPEN).count()
-        completed_contracts = db.query(Contract).filter(
+        total_spent = db.query(func.coalesce(func.sum(Contract.agreed_budget), 0)).filter(
             Contract.client_id == user_id,
-            Contract.status.in_([ContractStatus.COMPLETED, "completed", "COMPLETED"])
-        ).all()
-        completed_count = len(completed_contracts)
-        total_spent = sum(c.agreed_budget for c in completed_contracts)
+            Contract.status == ContractStatus.COMPLETED,
+        ).scalar() or 0
         gigs = db.query(Gig).filter(Gig.client_id == user_id).all()
         total_proposals = sum(g.application_count for g in gigs)
 
         return {
             "role": "client",
             "active_gigs": active_gigs,
-            "completed_contracts": completed_count,
+            "completed_contracts": stats["completed_gigs_count"],
             "total_proposals_received": total_proposals,
             "total_spent": total_spent,
         }
@@ -75,15 +115,17 @@ def get_user_profile(user_id: int, db: Session = Depends(get_db)):
     skills = db.query(UserSkill).join(Skill).filter(UserSkill.user_id == user_id).all()
     portfolio = db.query(PortfolioItem).filter(PortfolioItem.user_id == user_id).all()
     
-    reviews = db.query(Review).filter(Review.reviewed_id == user_id).all()
-    avg_rating = round(sum(r.rating for r in reviews) / len(reviews)) if reviews else 0
+    stats = _get_profile_stats(user, db)
     
     return {
         "user": {"id": user.id, "email": user.email, "role": user.role.value},
-        "profile": ProfileResponse.model_validate(profile) if profile else None,
+        "profile": _profile_response(profile, stats) if profile else None,
         "skills": [{"id": us.skill.id, "name": us.skill.name, "proficiency": us.proficiency_level} for us in skills],
         "portfolio": [p.__dict__ for p in portfolio],
-        "stats": {"average_rating": avg_rating, "total_reviews": len(reviews)},
+        "stats": {
+            "average_rating": stats["average_rating"] if stats["total_reviews"] else None,
+            "total_reviews": stats["total_reviews"],
+        },
     }
 
 
@@ -101,7 +143,8 @@ def get_my_profile(current_user: dict = Depends(get_current_user), db: Session =
         db.commit()
         db.refresh(profile)
     
-    return ProfileResponse.model_validate(profile)
+    user = db.query(User).filter(User.id == user_id).first()
+    return _profile_response(profile, _get_profile_stats(user, db))
 
 @router.post("/profile", response_model=ProfileResponse)
 def create_or_update_profile(
@@ -121,7 +164,8 @@ def create_or_update_profile(
     
     db.commit()
     db.refresh(profile)
-    return ProfileResponse.model_validate(profile)
+    user = db.query(User).filter(User.id == user_id).first()
+    return _profile_response(profile, _get_profile_stats(user, db))
 
 
 @router.put("/profile/me", response_model=ProfileResponse)
@@ -148,7 +192,8 @@ def update_my_profile(
     
     db.commit()
     db.refresh(profile)
-    return ProfileResponse.model_validate(profile)
+    user = db.query(User).filter(User.id == user_id).first()
+    return _profile_response(profile, _get_profile_stats(user, db))
 
 
 # ── SKILLS ENDPOINTS ───────────────────────────────────────

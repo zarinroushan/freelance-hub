@@ -70,7 +70,7 @@ class ProfileResponse(BaseModel):
     availability: str = "available"
     skills_summary: Optional[str] = None
     completed_gigs_count: int = 0
-    average_rating: int = 0
+    average_rating: float = 0
     total_earnings: int = 0
     created_at: datetime
     
